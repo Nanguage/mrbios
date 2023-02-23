@@ -1,5 +1,5 @@
 import fire
-from .mrbios import MrBios
+from .cli import CLI
 
 
-fire.Fire(MrBios)
+fire.Fire(CLI)

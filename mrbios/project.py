@@ -1,21 +1,18 @@
 import typing as T
 from pathlib import Path
 
-from loguru import logger
+from .utils.log import logger
+from .utils.misc import TemplatesRenderer
 
 
-class TemplatesRenderer():
-    """For render all templates from source dir to target dir."""
-    def __init__(self, templates_path: Path, target_path: Path):
-        self.templates_path = templates_path
-        self.target_path = target_path
+TEMPLATES_PATH = Path(__file__).parent / "templates"
 
-    def render(self, **kwargs):
-        """Render and save to target path.
-        
-        Provide variables by **kwargs.
-        """
-        logger.info(f"Render templates at {self.templates_path} to {self.target_path}")
+
+def list_env_templates() -> list[str]:
+    env_templates_path = TEMPLATES_PATH / "env"
+    return [
+        str(i.name) for i in env_templates_path.glob("*")
+    ]
 
 
 class Env():
@@ -28,7 +25,7 @@ class Env():
     def create(self):
         """Create the Environment."""
         if not self.is_exist:
-            logger.info("Creating env {name}...")
+            logger.info(f"Creating env: '{self.name}'")
             self.path.mkdir(parents=True)
             self.renderer.render(name=self.name)
             logger.info(f"{repr(self)}")
@@ -90,24 +87,13 @@ class Project():
             envs.append(e)
         return envs
 
-    def add_env(self, name: str):
+    def add_env(self, name: str, template: str = "py-env"):
         """Add a new environment."""
-        env = Env(name, self.sub_paths.env)
+        templates_path = TEMPLATES_PATH / "env" / template
+        if not templates_path.exists():
+            err_msg = f"Template '{template}' is not found."
+            err_msg += " Available templates: "
+            err_msg += " ".join(list_env_templates())
+            raise IOError(err_msg)
+        env = Env(name, self.sub_paths.env, templates_path)
         env.create()
-
-
-class MrBios():
-    """The interface of Mr.BIOS."""
-    def __init__(self, path="./"):
-        self.proj = Project(path)
-
-    def add_env(self, name: str):
-        self.proj.add_env(name)
-        return self
-
-    def create_project(self, path: str):
-        proj = Project(path)
-        proj.create()
-        self.proj = proj
-        return self
-

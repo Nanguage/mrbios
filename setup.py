@@ -9,6 +9,7 @@ from setuptools import setup, find_packages
 def get_long_description():
     return "See https://github.com/Nanguage/mrbios"
 
+
 def get_version():
     with open("mrbios/__init__.py") as f:
         for line in f.readlines():
@@ -22,6 +23,7 @@ def get_install_requirements():
     requirements = [
         "fire",
         "loguru",
+        "rich",
         "jinja2",
     ]
     return requirements
@@ -34,6 +36,8 @@ with open("docs/requirements.txt") as f:
         p = line.strip()
         if p:
             requires_doc.append(p)
+requires_dev_tools = ["pip", "setuptools", "wheel", "twine", "ipdb"]
+
 
 setup(
     author="Weize Xu",
@@ -45,8 +49,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
     ],
     description="A bioinformatics scripts management tool.",
@@ -63,6 +65,6 @@ setup(
     extras_require={
         'test': requires_test,
         'doc': requires_doc,
-        'dev': ["pip", "setuptools", "wheel", "twine", "ipdb"] + requires_test + requires_doc,
+        'dev': requires_dev_tools + requires_test + requires_doc,
     }
 )

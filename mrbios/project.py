@@ -1,7 +1,7 @@
 import typing as T
 from pathlib import Path
 
-from .utils.log import logger
+from .utils.log import console
 from .utils.misc import TemplatesRenderer
 
 
@@ -25,12 +25,13 @@ class Env():
     def create(self):
         """Create the Environment."""
         if not self.is_exist:
-            logger.info(f"Creating env: '{self.name}'")
+            console.log(f"Creating env: [note]'{self.name}'[note]")
             self.path.mkdir(parents=True)
             self.renderer.render(name=self.name)
-            logger.info(f"{repr(self)}")
+            console.log(f"{repr(self)}")
         else:
-            logger.info(f"{self.name} aleardy exist at {self.path}")
+            console.log(
+                f"{self.name} aleardy exist at [path]{self.path}[/path]")
 
     @property
     def is_exist(self) -> bool:
@@ -38,7 +39,7 @@ class Env():
 
     def __repr__(self):
         e = "created" if self.is_exist else "uncreated"
-        return f"Env at {self.path}, ({e})"
+        return f"Env at [path]{self.path}[/path] ({e})"
 
 
 class SubPaths(T.NamedTuple):
@@ -71,12 +72,19 @@ class Project():
 
     def create(self):
         """Create the project."""
+        console.log(
+            f"Create project at: [path]{self.path.absolute()}[/path]")
         p = self.path
         if not p.exists():
             p.mkdir(parents=True)
         for sub in self.sub_paths:
             if not sub.exists():
                 sub.mkdir(parents=True)
+        # copy files
+        renderer = TemplatesRenderer(
+            TEMPLATES_PATH / "root",
+            self.path)
+        renderer.render()
 
     def list_envs(self) -> list[Env]:
         """List all Environments in this project."""

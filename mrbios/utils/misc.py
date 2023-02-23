@@ -1,6 +1,9 @@
 from pathlib import Path
+import shutil
 
-from .log import logger
+import jinja2
+
+from .log import console
 
 
 class TemplatesRenderer():
@@ -14,5 +17,26 @@ class TemplatesRenderer():
 
         Provide variables by **kwargs.
         """
-        logger.info(
-            f"Render templates at {self.templates_path} to {self.target_path}")
+        with console.status(
+                "Render templates at "
+                f"[path]{self.templates_path}[/path] to "
+                f"[path]{self.target_path}[/path]"):
+            for path in self.templates_path.glob("*"):
+                if path.name.endswith(".temp"):
+                    # render file
+                    target = self.target_path / path.name.removesuffix(".temp")
+                    console.log(
+                        f"Render template [path]{path}[/path] to "
+                        f"[path]{target}[/path]")
+                    with open(path) as f:
+                        temp_str = f.read()
+                    temp = jinja2.Template(temp_str)
+                    content = temp.render(**kwargs)
+                    with open(target, 'w') as fo:
+                        fo.write(content)
+                else:
+                    # copy file
+                    target = self.target_path / path.name
+                    console.log(f"Copy [path]{path}[/path] "
+                                f"to [path]{target}[/path]")
+                    shutil.copy(path, target)

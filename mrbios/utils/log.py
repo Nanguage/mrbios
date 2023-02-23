@@ -1,3 +1,9 @@
-from loguru import logger
+from rich.console import Console
+from rich.theme import Theme
 
-__all__ = ["logger"]
+custom_theme = Theme({
+    "path": "italic green",
+    "note": "bold magenta",
+})
+
+console = Console(theme=custom_theme)

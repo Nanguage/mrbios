@@ -1,5 +1,5 @@
 from .project import Project, list_env_templates
-from .utils.log import logger
+from .utils.log import console
 
 
 class ProjectManager():
@@ -24,10 +24,10 @@ class ProjectManager():
 
     def list_env_templates(self):
         """List all available env templates."""
-        all_temps = '\n'.join(list_env_templates())
-        logger.info("Available env templates: \n"+all_temps)
+        console.log("Available env templates:")
+        console.print(list_env_templates())
 
-    def create_project(self, path: str):
+    def create(self, path: str):
         """Create a project to specific path."""
         proj = Project(path)
         proj.create()

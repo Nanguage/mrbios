@@ -16,18 +16,18 @@ def list_env_templates() -> list[str]:
 
 
 class Env():
-    def __init__(self, name: str, base_path: Path, templates_path: Path):
+    def __init__(self, name: str, base_path: Path):
         self.name = name
         self.base_path = base_path
         self.path = self.base_path / name
-        self.renderer = TemplatesRenderer(templates_path, self.path)
 
-    def create(self):
+    def create(self,  templates_path: Path):
         """Create the Environment."""
+        renderer = TemplatesRenderer(templates_path, self.path)
         if not self.is_exist:
             console.log(f"Creating env: [note]'{self.name}'[note]")
             self.path.mkdir(parents=True)
-            self.renderer.render(name=self.name)
+            renderer.render(name=self.name)
             console.log(f"{repr(self)}")
         else:
             console.log(
@@ -91,7 +91,7 @@ class Project():
         p_env: Path = self.sub_paths.env
         envs = []
         for p in p_env.iterdir():
-            e = Env(p.name)
+            e = Env(p.name, p)
             envs.append(e)
         return envs
 
@@ -103,5 +103,5 @@ class Project():
             err_msg += " Available templates: "
             err_msg += " ".join(list_env_templates())
             raise IOError(err_msg)
-        env = Env(name, self.sub_paths.env, templates_path)
-        env.create()
+        env = Env(name, self.sub_paths.env)
+        env.create(templates_path)

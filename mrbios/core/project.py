@@ -1,45 +1,18 @@
 import typing as T
 from pathlib import Path
 
-from .utils.log import console
-from .utils.misc import TemplatesRenderer
-
-
-TEMPLATES_PATH = Path(__file__).parent / "templates"
+from ..utils.log import console
+from ..utils.misc import (
+    TemplatesRenderer, ENV_TEMPLATES_PATH,
+    TEMPLATES_PATH
+)
+from .env import Env
 
 
 def list_env_templates() -> list[str]:
-    env_templates_path = TEMPLATES_PATH / "envs"
     return [
-        str(i.name) for i in env_templates_path.glob("*")
+        str(i.name) for i in ENV_TEMPLATES_PATH.glob("*")
     ]
-
-
-class Env():
-    def __init__(self, name: str, base_path: Path):
-        self.name = name
-        self.base_path = base_path
-        self.path = self.base_path / name
-
-    def create(self,  templates_path: Path):
-        """Create the Environment."""
-        renderer = TemplatesRenderer(templates_path, self.path)
-        if not self.is_exist:
-            console.log(f"Creating env: [note]'{self.name}'[note]")
-            self.path.mkdir(parents=True)
-            renderer.render(name=self.name)
-            console.log(f"{repr(self)}")
-        else:
-            console.log(
-                f"{self.name} aleardy exist at [path]{self.path}[/path]")
-
-    @property
-    def is_exist(self) -> bool:
-        return self.path.exists()
-
-    def __repr__(self):
-        e = "created" if self.is_exist else "uncreated"
-        return f"Env at [path]{self.path}[/path] ({e})"
 
 
 class SubPaths(T.NamedTuple):
@@ -86,18 +59,18 @@ class Project():
             self.path)
         renderer.render()
 
-    def list_envs(self) -> list[Env]:
+    def get_envs(self) -> dict[str, Env]:
         """List all Environments in this project."""
         p_env: Path = self.sub_paths.env
-        envs = []
+        envs = {}
         for p in p_env.iterdir():
             e = Env(p.name, p)
-            envs.append(e)
+            envs[e.name] = e
         return envs
 
     def add_env(self, name: str, template: str = "py-env"):
         """Add a new environment."""
-        templates_path = TEMPLATES_PATH / "envs" / template
+        templates_path = ENV_TEMPLATES_PATH / template
         if not templates_path.exists():
             err_msg = f"Template '{template}' is not found."
             err_msg += " Available templates: "
@@ -105,3 +78,8 @@ class Project():
             raise IOError(err_msg)
         env = Env(name, self.sub_paths.env)
         env.create(templates_path)
+
+    def remove_env(self, name: str):
+        """Remove a env"""
+        env = Env(name, self.sub_paths.env)
+        env.delete()

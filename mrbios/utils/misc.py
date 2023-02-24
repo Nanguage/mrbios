@@ -6,6 +6,10 @@ import jinja2
 from .log import console
 
 
+TEMPLATES_PATH = Path(__file__).parent.parent / "templates"
+ENV_TEMPLATES_PATH = TEMPLATES_PATH / "envs"
+
+
 class TemplatesRenderer():
     """For render all templates from source dir to target dir."""
     def __init__(self, templates_path: Path, target_path: Path):

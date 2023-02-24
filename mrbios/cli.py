@@ -1,5 +1,5 @@
-from .project import Project, list_env_templates
-from .utils.log import console
+from .core.project import Project, list_env_templates
+from .utils.log import console, Confirm
 
 
 class ProjectManager():
@@ -21,6 +21,13 @@ class ProjectManager():
         available env templates.
         """
         self._proj.add_env(name, template)
+
+    def remove_env(self, name: str):
+        """Remove an environment."""
+        is_remove = Confirm.ask(
+            f"Do you want to remove env: [note]{name}[/note]?")
+        if is_remove:
+            self._proj.remove_env(name)
 
     def list_env_templates(self):
         """List all available env templates."""

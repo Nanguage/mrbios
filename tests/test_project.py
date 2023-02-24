@@ -41,6 +41,7 @@ def test_add_env(monkeypatch):
     assert env_path.exists()
     assert (env_path / "build.yaml").exists()
     monkeypatch.setattr('sys.stdin', io.StringIO('y'))
+    pr.list_envs()
     pr.remove_env("test_py")
     envs = pr._proj.get_envs()
     assert len(envs) == 0

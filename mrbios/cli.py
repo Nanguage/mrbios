@@ -29,6 +29,13 @@ class ProjectManager():
         if is_remove:
             self._proj.remove_env(name)
 
+    def list_envs(self):
+        """List all existing envs."""
+        msg = "Existing envs:\n"
+        for env in self._proj.get_envs().values():
+            msg += repr(env) + "\n"
+        console.print(msg)
+
     def list_env_templates(self):
         """List all available env templates."""
         console.log("Available env templates:")

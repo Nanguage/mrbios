@@ -10,6 +10,12 @@ TEMPLATES_PATH = Path(__file__).parent.parent / "templates"
 ENV_TEMPLATES_PATH = TEMPLATES_PATH / "envs"
 
 
+def list_env_templates() -> list[str]:
+    return [
+        str(i.name) for i in ENV_TEMPLATES_PATH.glob("*")
+    ]
+
+
 class TemplatesRenderer():
     """For render all templates from source dir to target dir."""
     def __init__(self, templates_path: Path, target_path: Path):

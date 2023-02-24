@@ -1,5 +1,6 @@
-from .core.project import Project, list_env_templates
-from .utils.log import console, Confirm
+from .core.project import Project
+from .utils.misc import list_env_templates
+from .utils.log import console, Confirm, Prompt
 
 
 class ProjectManager():
@@ -12,7 +13,7 @@ class ProjectManager():
         self._proj = Project(path)
         return self
 
-    def add_env(self, name: str, template: str):
+    def add_env(self, name: str, template: str | None = None):
         """Add an environment to the project.
 
         :param name: Name of the env.
@@ -20,6 +21,12 @@ class ProjectManager():
         Using `list_env_templates` to see all
         available env templates.
         """
+        if template is None:
+            templates = list_env_templates()
+            template = Prompt.ask(
+                "Choice a template",
+                choices=templates,
+                default=templates[0])
         self._proj.add_env(name, template)
 
     def remove_env(self, name: str):

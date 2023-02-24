@@ -1,5 +1,5 @@
 from rich.console import Console
-from rich.prompt import Confirm
+from rich.prompt import Confirm, Prompt
 from rich.theme import Theme
 
 custom_theme = Theme({
@@ -11,4 +11,4 @@ custom_theme = Theme({
 console = Console(theme=custom_theme)
 
 
-__all__ = ["console", "Confirm"]
+__all__ = ["console", "Confirm", "Prompt"]

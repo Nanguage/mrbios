@@ -33,7 +33,9 @@ def test_add_env(monkeypatch):
     pr.create(TEST_PROJ)
     with pytest.raises(IOError):
         pr.add_env("test_py", "not_exist")
-    pr.add_env("test_py", "py-env")
+
+    monkeypatch.setattr('sys.stdin', io.StringIO('py-env'))
+    pr.add_env("test_py")
     pr.add_env("test_py", "py-env")  # aleardy exist
     envs = pr._proj.get_envs()
     assert len(envs) == 1

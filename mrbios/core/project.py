@@ -4,15 +4,9 @@ from pathlib import Path
 from ..utils.log import console
 from ..utils.misc import (
     TemplatesRenderer, ENV_TEMPLATES_PATH,
-    TEMPLATES_PATH
+    TEMPLATES_PATH, list_env_templates
 )
 from .env import Env
-
-
-def list_env_templates() -> list[str]:
-    return [
-        str(i.name) for i in ENV_TEMPLATES_PATH.glob("*")
-    ]
 
 
 class SubPaths(T.NamedTuple):

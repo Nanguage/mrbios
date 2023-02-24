@@ -9,7 +9,7 @@ TEMPLATES_PATH = Path(__file__).parent / "templates"
 
 
 def list_env_templates() -> list[str]:
-    env_templates_path = TEMPLATES_PATH / "env"
+    env_templates_path = TEMPLATES_PATH / "envs"
     return [
         str(i.name) for i in env_templates_path.glob("*")
     ]
@@ -97,7 +97,7 @@ class Project():
 
     def add_env(self, name: str, template: str = "py-env"):
         """Add a new environment."""
-        templates_path = TEMPLATES_PATH / "env" / template
+        templates_path = TEMPLATES_PATH / "envs" / template
         if not templates_path.exists():
             err_msg = f"Template '{template}' is not found."
             err_msg += " Available templates: "

@@ -1,5 +1,5 @@
 from .dir_obj import DirObj
 
 
-class Env(DirObj):
+class FileType(DirObj):
     pass

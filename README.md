@@ -23,9 +23,20 @@
 </div>
 
 
-## Features
+**Work In Progress**
 
-* TODO
+
+## TODO List
+
++ CURD for
+  * file type
+  * file format
+  * task
+  * script
++ add meta file(JSON) for 
+  * env
++ Environment build
+
 
 ## Credits
 

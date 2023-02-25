@@ -4,9 +4,12 @@ from pathlib import Path
 from ..utils.log import console
 from ..utils.misc import (
     TemplatesRenderer, ENV_TEMPLATES_PATH,
-    TEMPLATES_PATH, list_env_templates
+    TEMPLATES_PATH, list_env_templates,
+    FILE_TYPE_TEMPLATE_PATH,
 )
+from .dir_obj import DirObj
 from .env import Env
+from .file_type import FileType
 
 
 class SubPaths(T.NamedTuple):
@@ -53,14 +56,19 @@ class Project():
             self.path)
         renderer.render()
 
+    def _get_dirobjs(
+            self, path: Path,
+            cls: T.Type[DirObj],
+            ) -> dict:
+        objs = {}
+        for p in path.iterdir():
+            e = cls(p.name, path)
+            objs[e.name] = e
+        return objs
+
     def get_envs(self) -> dict[str, Env]:
-        """List all Environments in this project."""
-        p_env: Path = self.sub_paths.env
-        envs = {}
-        for p in p_env.iterdir():
-            e = Env(p.name, p)
-            envs[e.name] = e
-        return envs
+        """Get all environments in this project."""
+        return self._get_dirobjs(self.sub_paths.env, Env)
 
     def add_env(self, name: str, template: str = "py-env"):
         """Add a new environment."""
@@ -74,6 +82,23 @@ class Project():
         env.create(templates_path)
 
     def remove_env(self, name: str):
-        """Remove a env"""
+        """Remove a env."""
         env = Env(name, self.sub_paths.env)
         env.delete()
+
+    def get_file_types(self) -> dict[str, FileType]:
+        """Get all file types"""
+        return self._get_dirobjs(self.sub_paths.format, FileType)
+
+    def add_file_type(self, name: str, short_description: str):
+        """Add a new file type."""
+        file_type = FileType(name, self.sub_paths.format)
+        file_type.create(
+            FILE_TYPE_TEMPLATE_PATH,
+            short_description=short_description,
+        )
+
+    def remove_file_type(self, name: str):
+        """Remove a file type."""
+        file_type = FileType(name, self.sub_paths.format)
+        file_type.delete()

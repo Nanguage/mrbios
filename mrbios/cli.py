@@ -54,6 +54,31 @@ class ProjectManager():
         proj.create()
         self._proj = proj
 
+    def add_file_type(
+            self, name: str,
+            description: str | None = None,
+            ):
+        """Add a file type"""
+        if description is None:
+            description = Prompt.ask(
+                "[blue]Give a short description about the file type[/blue]"
+            )
+        self._proj.add_file_type(name, description)
+
+    def remove_file_type(self, name: str):
+        """Remove a file type."""
+        is_remove = Confirm.ask(
+            f"Do you want to remove file type: [note]{name}[/note]?")
+        if is_remove:
+            self._proj.remove_file_type(name)
+
+    def list_file_types(self):
+        """List all existing file types."""
+        msg = "Existing file types:\n"
+        for ft in self._proj.get_file_types().values():
+            msg += repr(ft) + "\n"
+        console.print(msg)
+
 
 class CLI():
     def __init__(self):

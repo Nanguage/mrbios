@@ -56,9 +56,14 @@ def test_add_env(monkeypatch):
 def test_add_file_type(monkeypatch):
     pr = ProjectManager()
     pr.create(TEST_PROJ)
-    monkeypatch.setattr('sys.stdin', io.StringIO('The expression matrix.'))
+    desc = 'The expression matrix.'
+    monkeypatch.setattr('sys.stdin', io.StringIO(desc))
     pr.add_file_type("ExpMat")
-    assert len(pr._proj.get_file_types()) == 1
+    file_types = pr._proj.get_file_types()
+    ft = file_types['ExpMat']
+    assert ft.meta_info_path.exists()
+    assert ft.meta_info['short_description'] == desc
+    assert len(file_types) == 1
     pr.add_file_type("ExpMat", "The expression matrix.")
     ft_path = pr._proj.sub_paths.format / "ExpMat"
     assert ft_path.exists()

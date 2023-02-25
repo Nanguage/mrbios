@@ -1,5 +1,6 @@
 from pathlib import Path
 import shutil
+import json
 
 from ..utils.log import console
 from ..utils.misc import TemplatesRenderer
@@ -10,10 +11,26 @@ class DirObj():
         self.name = name
         self.base_path = base_path
         self.path = self.base_path / name
+        self._meta_store_file = '.meta.json'
 
     @property
     def class_name(self) -> str:
         return self.__class__.__name__
+
+    @property
+    def meta_info_path(self) -> Path:
+        return self.path / self._meta_store_file
+
+    @property
+    def meta_info(self) -> dict:
+        with open(self.meta_info_path) as f:
+            info = json.load(f)
+        return info
+
+    @meta_info.setter
+    def meta_info(self, value: dict):
+        with open(self.meta_info_path, 'w') as f:
+            json.dump(value, f, indent=4)
 
     def create(self, templates_path: Path, **kwargs):
         renderer = TemplatesRenderer(templates_path, self.path)
@@ -25,6 +42,7 @@ class DirObj():
             params = {"name": self.name}
             params.update(kwargs)
             renderer.render(**params)
+            self.meta_info = kwargs
             console.log(f"{repr(self)}")
         else:
             console.log(

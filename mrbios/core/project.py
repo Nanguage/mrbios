@@ -6,10 +6,12 @@ from ..utils.misc import (
     TemplatesRenderer, ENV_TEMPLATES_PATH,
     TEMPLATES_PATH, list_env_templates,
     FILE_TYPE_TEMPLATE_PATH,
+    FILE_FORMAT_TEMPLATE_PATH,
 )
 from .dir_obj import DirObj
 from .env import Env
 from .file_type import FileType
+from .file_format import FileFormat
 
 
 class SubPaths(T.NamedTuple):
@@ -90,15 +92,60 @@ class Project():
         """Get all file types"""
         return self._get_dirobjs(self.sub_paths.format, FileType)
 
-    def add_file_type(self, name: str, short_description: str):
+    def add_file_type(self, name: str, description: str):
         """Add a new file type."""
         file_type = FileType(name, self.sub_paths.format)
         file_type.create(
             FILE_TYPE_TEMPLATE_PATH,
-            short_description=short_description,
+            description=description,
         )
 
     def remove_file_type(self, name: str):
         """Remove a file type."""
         file_type = FileType(name, self.sub_paths.format)
         file_type.delete()
+
+    def add_file_format(
+            self, file_type: str, name: str,
+            description:str):
+        """Add a new file format"""
+        type_path = self.sub_paths.format / file_type
+        if not type_path.exists():
+            raise IOError(
+                f"File type {file_type} is not exist.")
+        file_format = FileFormat(name, type_path)
+        file_format.create(
+            FILE_FORMAT_TEMPLATE_PATH,
+            description=description
+        )
+
+    def remove_file_format(self, file_type: str, name: str):
+        """Remove a file format"""
+        type_path = self.sub_paths.format / file_type
+        if not type_path.exists():
+            raise IOError(
+                f"File type {file_type} is not exist.")
+        file_format = FileFormat(name, type_path)
+        file_format.delete()
+
+    def get_file_formats(self, file_type: str) -> dict[str, FileFormat]:
+        """Get file formats in specific file type."""
+        type_path = self.sub_paths.format / file_type
+        if not type_path.exists():
+            raise IOError(
+                f"File type {file_type} is not exist.")
+        ft = FileType(file_type, self.sub_paths.format)
+        formats = {
+            fm.name: fm for fm in ft.file_formats
+        }
+        return formats
+
+    def get_all_file_formats(self) -> dict[str, dict[str, FileFormat]]:
+        """Get all file formats."""
+        info = {}
+        for path in self.sub_paths.format.iterdir():
+            if not path.is_dir():
+                continue
+            formats = self.get_file_formats(path.name)
+            info[path.name] = formats
+        return info

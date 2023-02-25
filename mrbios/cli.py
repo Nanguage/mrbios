@@ -79,6 +79,37 @@ class ProjectManager():
             msg += repr(ft) + "\n"
         console.print(msg)
 
+    def add_file_format(
+            self, name,
+            file_type: str | None = None,
+            description: str | None = None):
+        """Add a file format"""
+        if file_type is None:
+            file_types = [
+                ft.name for ft in
+                self._proj.get_file_types().values()
+            ]
+            file_type = Prompt.ask(
+                "Select a file type",
+                choices=file_types,
+            )
+        if description is None:
+            description = Prompt.ask(
+                "[blue]Give a short description about the file format[/blue]"
+            )
+        self._proj.add_file_format(file_type, name, description)
+
+    def remove_file_format(self, name: str):
+        """Remove a file format."""
+        is_remove = Confirm.ask(
+            f"Do you want to remove file format: [note]{name}[/note]?")
+        if is_remove:
+            self._proj.remove_file_format(name)
+
+    def list_file_formats(self, file_type: str = "All"):
+        """List file formats"""
+        pass
+
 
 class CLI():
     def __init__(self):

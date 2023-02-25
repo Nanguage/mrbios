@@ -9,6 +9,7 @@ from .log import console
 TEMPLATES_PATH = Path(__file__).parent.parent / "templates"
 ENV_TEMPLATES_PATH = TEMPLATES_PATH / "envs"
 FILE_TYPE_TEMPLATE_PATH = TEMPLATES_PATH / "file_type"
+FILE_FORMAT_TEMPLATE_PATH = TEMPLATES_PATH / "file_format"
 
 
 def list_env_templates() -> list[str]:

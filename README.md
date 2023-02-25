@@ -1,5 +1,5 @@
 <div align="center">
-<h1> MrBIOS </h1>
+<h1> Mr.BIOS </h1>
 
 <p> A bioinformatics scripts management tool. </p>
 

@@ -67,3 +67,30 @@ class DirObj():
     def __repr__(self):
         e = "created" if self.is_exist else "uncreated"
         return f"{self.class_name} at [path]{self.path}[/path] ({e})"
+
+
+class Env(DirObj):
+    pass
+
+
+class FileType(DirObj):
+    @property
+    def file_formats(self) -> list["FileFormat"]:
+        formats = []
+        for p in self.path.iterdir():
+            if not p.is_dir():
+                continue
+            ff = FileFormat(p.name, self.path)
+            formats.append(ff)
+        return formats
+
+
+class FileFormat(DirObj):
+    @property
+    def file_type(self) -> FileType:
+        parent = self.path.parent
+        return FileType(parent.name, parent)
+
+
+class Task(DirObj):
+    pass

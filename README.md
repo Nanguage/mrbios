@@ -14,7 +14,7 @@
     	<img src="https://readthedocs.org/projects/mrbios/badge/?version=latest" alt="Documentation">
     </a>
   <a href="https://pypi.org/project/mrbios/">
-    <img src="https://img.shields.io/pypi/v/mrbios.svg" alt="Install with PyPi" />
+    <img src="https://img.shields.io/pypi/v/mrbios.svg" alt="Install with PyPI" />
   </a>
   <a href="https://github.com/Nanguage/mrbios/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/Nanguage/mrbios" alt="MIT license" />
@@ -29,13 +29,18 @@
 ## TODO List
 
 + CURD for
-  * file type
-  * file format
+  * file type (done)
+  * file format (done)
   * task
   * script
-+ add meta file(JSON) for 
-  * env
++ add meta file(JSON) for DirObjs (done)
++ verbose mode for list DirObjs.
 + Environment build
+  * conda env build
+  * docker image build
++ Script run
+  * with CLI
+  * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI
 
 
 ## Credits

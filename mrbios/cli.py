@@ -99,20 +99,34 @@ class ProjectManager():
             )
         self._proj.add_file_format(file_type, name, description)
 
-    def remove_file_format(self, name: str):
+    def remove_file_format(self, file_type: str, name: str):
         """Remove a file format."""
         is_remove = Confirm.ask(
-            f"Do you want to remove file format: [note]{name}[/note]?")
+            "Do you want to remove file format: "
+            f"[note]{file_type}/{name}[/note]?")
         if is_remove:
-            self._proj.remove_file_format(name)
+            self._proj.remove_file_format(file_type, name)
 
     def list_file_formats(self, file_type: str = "All"):
-        """List file formats"""
-        pass
+        """List file formats.
+        
+        :param file_type: Specify file_type, if not set will list all.
+        """
+        info = self._proj.get_all_file_formats()
+        if file_type.lower() == "all":
+            for ft_name, formats in info.items():
+                console.print(f"[note]{ft_name}[/note]:")
+                fm_names = " ".join([f for f in formats.keys()])
+                console.print(fm_names)
+                console.print()
+        else:
+            formats = info[file_type]
+            fm_names = " ".join([f for f in formats.keys()])
+            console.print(fm_names)
 
 
 class CLI():
-    def __init__(self):
+    def __init__(self):  # pragma: no cover
         # command groups
         self.project = ProjectManager()
 

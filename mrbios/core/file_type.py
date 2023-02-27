@@ -13,6 +13,6 @@ class FileType(DirObj):
         for p in self.path.iterdir():
             if not p.is_dir():
                 continue
-            ff = FileFormat(p.name, p)
+            ff = FileFormat(p.name, self.path)
             formats.append(ff)
         return formats

@@ -144,8 +144,7 @@ class Project():
         """Get all file formats."""
         info = {}
         for path in self.sub_paths.format.iterdir():
-            if not path.is_dir():
-                continue
-            formats = self.get_file_formats(path.name)
-            info[path.name] = formats
+            if path.is_dir():
+                formats = self.get_file_formats(path.name)
+                info[path.name] = formats
         return info

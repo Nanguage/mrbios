@@ -62,7 +62,7 @@ def test_add_file_type(monkeypatch):
     file_types = pr._proj.get_file_types()
     ft = file_types['ExpMat']
     assert ft.meta_info_path.exists()
-    assert ft.meta_info['short_description'] == desc
+    assert ft.meta_info['description'] == desc
     assert len(file_types) == 1
     pr.add_file_type("ExpMat", "The expression matrix.")
     ft_path = pr._proj.sub_paths.format / "ExpMat"
@@ -75,4 +75,32 @@ def test_add_file_type(monkeypatch):
     with pytest.raises(IOError):
         monkeypatch.setattr('sys.stdin', io.StringIO('y'))
         pr.remove_file_type("not_exist")
+    shutil.rmtree(TEST_PROJ)
+
+
+def test_add_file_format(monkeypatch):
+    pr = ProjectManager()
+    pr.create(TEST_PROJ)
+    pr.add_file_type("ExpMat", "The exp table.")
+    monkeypatch.setattr(
+        "sys.stdin", io.StringIO("ExpMat\nThe txt format mat."))
+    pr.add_file_format("TxtMat")
+    with pytest.raises(IOError):
+        pr._proj.add_file_format("NotExist", "Txt", "")
+    with pytest.raises(IOError):
+        pr._proj.remove_file_format("NotExist", "Txt")
+    with pytest.raises(IOError):
+        pr._proj.get_file_formats("NotExist")
+    ft = pr._proj.get_file_types()['ExpMat']
+    assert len(ft.file_formats) == 1
+    fm = ft.file_formats[0]
+    assert fm.file_type.name == "ExpMat"
+    assert fm.path.exists()
+    assert (fm.path / 'example_file.txt').exists()
+    assert (fm.path / 'README.md').exists()
+    pr.list_file_formats('All')
+    pr.list_file_formats("ExpMat")
+    monkeypatch.setattr('sys.stdin', io.StringIO('y'))
+    pr.remove_file_format("ExpMat", "TxtMat")
+    assert len(ft.file_formats) == 0
     shutil.rmtree(TEST_PROJ)

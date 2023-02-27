@@ -107,7 +107,7 @@ class Project():
 
     def add_file_format(
             self, file_type: str, name: str,
-            description:str):
+            description: str):
         """Add a new file format"""
         type_path = self.sub_paths.format / file_type
         if not type_path.exists():

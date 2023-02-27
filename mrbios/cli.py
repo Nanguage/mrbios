@@ -109,7 +109,7 @@ class ProjectManager():
 
     def list_file_formats(self, file_type: str = "All"):
         """List file formats.
-        
+
         :param file_type: Specify file_type, if not set will list all.
         """
         info = self._proj.get_all_file_formats()

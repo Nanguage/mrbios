@@ -123,6 +123,7 @@ def test_add_task(monkeypatch):
         "sys.stdin", io.StringIO("y"))
     pr.remove_task("TestTask")
     assert len(pr._proj.get_tasks()) == 0
+    shutil.rmtree(TEST_PROJ)
 
 
 def test_add_script(monkeypatch):
@@ -155,3 +156,4 @@ def test_add_script(monkeypatch):
     pr.remove_script("TestTask", "TestScript")
     scripts = pr._proj.get_scripts("TestTask")
     assert len(scripts) == 0
+    shutil.rmtree(TEST_PROJ)

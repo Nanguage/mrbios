@@ -10,11 +10,19 @@ TEMPLATES_PATH = Path(__file__).parent.parent / "templates"
 ENV_TEMPLATES_PATH = TEMPLATES_PATH / "envs"
 FILE_TYPE_TEMPLATE_PATH = TEMPLATES_PATH / "file_type"
 FILE_FORMAT_TEMPLATE_PATH = TEMPLATES_PATH / "file_format"
+TASK_TEMPLATE_PATH = TEMPLATES_PATH / "task"
+SCRIPT_TEMPLATE_PATH = TEMPLATES_PATH / "script"
 
 
 def list_env_templates() -> list[str]:
     return [
         str(i.name) for i in ENV_TEMPLATES_PATH.glob("*")
+    ]
+
+
+def list_script_templates() -> list[str]:
+    return [
+        str(i.name) for i in SCRIPT_TEMPLATE_PATH.glob("*")
     ]
 
 

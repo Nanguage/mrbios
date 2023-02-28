@@ -1,0 +1,17 @@
+name: hello
+
+command: python run.py --name {name} --times {times} --out {out}
+
+inputs:
+  name:
+    type: str
+
+  times:
+    type: int
+    range: [1, 100]
+    default: 10
+
+  out:
+    type: file
+    file_format: FILE_TYPE/FILE_FORMAT
+    default: xxx

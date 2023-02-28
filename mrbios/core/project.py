@@ -7,10 +7,14 @@ from ..utils.misc import (
     TEMPLATES_PATH, list_env_templates,
     FILE_TYPE_TEMPLATE_PATH,
     FILE_FORMAT_TEMPLATE_PATH,
+    TASK_TEMPLATE_PATH,
+    SCRIPT_TEMPLATE_PATH,
+    list_script_templates,
 )
 from .dir_obj import (
     DirObj, Env,
     FileType, FileFormat,
+    Task, Script,
 )
 
 
@@ -147,4 +151,74 @@ class Project():
             if path.is_dir():
                 formats = self.get_file_formats(path.name)
                 info[path.name] = formats
+        return info
+
+    def add_task(self, name: str, description: str):
+        """Add a new task."""
+        task = Task(name, self.sub_paths.task)
+        task.create(
+            TASK_TEMPLATE_PATH,
+            description=description,
+        )
+
+    def remove_task(self, name):
+        """Remove a task."""
+        task = Task(name, self.sub_paths.task)
+        task.delete()
+
+    def get_tasks(self) -> dict[str, Task]:
+        """Get all tasks."""
+        return self._get_dirobjs(self.sub_paths.task, Task)
+
+    def add_script(
+            self, task: str, name: str,
+            template: str,
+            description: str):
+        """Add a new script."""
+        task_path = self.sub_paths.task / task
+        if not task_path.exists():
+            raise IOError(
+                f"Task {task} is not exist.")
+
+        templates_path = SCRIPT_TEMPLATE_PATH / template
+        if not templates_path.exists():
+            err_msg = f"Template '{template}' is not found."
+            err_msg += " Available templates: "
+            err_msg += " ".join(list_script_templates())
+            raise IOError(err_msg)
+
+        script = Script(name, task_path)
+        script.create(
+            templates_path,
+            description=description
+        )
+
+    def remove_script(self, task: str, name: str):
+        """Remove a script."""
+        task_path = self.sub_paths.task / task
+        if not task_path.exists():
+            raise IOError(
+                f"Task {task} is not exist.")
+        script = Script(name, task_path)
+        script.delete()
+
+    def get_scripts(self, task: str) -> dict[str, Script]:
+        """Get scripts in specific task."""
+        task_path = self.sub_paths.task / task
+        if not task_path.exists():
+            raise IOError(
+                f"Task {task} is not exist.")
+        task_obj = Task(task, self.sub_paths.task)
+        scripts = {
+            s.name: s for s in task_obj.scripts
+        }
+        return scripts
+
+    def get_all_scripts(self) -> dict[str, dict[str, Script]]:
+        """Get all scripts."""
+        info = {}
+        for path in self.sub_paths.task.iterdir():
+            if path.is_dir():
+                scripts = self.get_scripts(path.name)
+                info[path.name] = scripts
         return info

@@ -94,13 +94,64 @@ def test_add_file_format(monkeypatch):
     ft = pr._proj.get_file_types()['ExpMat']
     assert len(ft.file_formats) == 1
     fm = ft.file_formats[0]
-    assert fm.file_type.name == "ExpMat"
+    assert fm.file_type.path == ft.path
     assert fm.path.exists()
     assert (fm.path / 'example_file.txt').exists()
     assert (fm.path / 'README.md').exists()
     pr.list_file_formats('All')
     pr.list_file_formats("ExpMat")
+    with pytest.raises(IOError):
+        pr.list_file_formats("NotExist")
     monkeypatch.setattr('sys.stdin', io.StringIO('y'))
     pr.remove_file_format("ExpMat", "TxtMat")
     assert len(ft.file_formats) == 0
     shutil.rmtree(TEST_PROJ)
+
+
+def test_add_task(monkeypatch):
+    pr = ProjectManager()
+    pr.create(TEST_PROJ)
+    monkeypatch.setattr(
+        "sys.stdin", io.StringIO("Test"))
+    pr.add_task("TestTask")
+    tasks = pr._proj.get_tasks()
+    assert len(tasks) == 1
+    assert tasks['TestTask'].path.exists()
+    assert (tasks['TestTask'].path / "README.md").exists()
+    pr.list_tasks()
+    monkeypatch.setattr(
+        "sys.stdin", io.StringIO("y"))
+    pr.remove_task("TestTask")
+    assert len(pr._proj.get_tasks()) == 0
+
+
+def test_add_script(monkeypatch):
+    pr = ProjectManager()
+    pr.create(TEST_PROJ)
+    pr.add_task("TestTask", "Test")
+    monkeypatch.setattr(
+        "sys.stdin", io.StringIO("TestTask\npy-script\nTest"))
+    pr.add_script("TestScript")
+    with pytest.raises(IOError):
+        pr.add_script("Test2", "TestTask", "NotExists", "Test")
+    with pytest.raises(IOError):
+        pr.add_script("Test2", "NotExists", "py-script", "Test")
+    task = pr._proj.get_tasks()['TestTask']
+    assert len(task.scripts) == 1
+    script = task.scripts[0]
+    assert script.task.path == task.path
+    assert script.path.exists()
+    assert (script.path / "interface.yaml").exists()
+    assert (script.path / "README.md").exists()
+    assert (script.path / "run.py").exists()
+    pr.list_scripts("TestTask")
+    with pytest.raises(IOError):
+        pr.list_scripts("NotExist")
+    pr.list_scripts("All")
+    with pytest.raises(IOError):
+        monkeypatch.setattr("sys.stdin", io.StringIO("y"))
+        pr.remove_script("NotExist", "TestScript")
+    monkeypatch.setattr("sys.stdin", io.StringIO("y"))
+    pr.remove_script("TestTask", "TestScript")
+    scripts = pr._proj.get_scripts("TestTask")
+    assert len(scripts) == 0

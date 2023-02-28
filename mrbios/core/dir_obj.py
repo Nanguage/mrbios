@@ -89,8 +89,23 @@ class FileFormat(DirObj):
     @property
     def file_type(self) -> FileType:
         parent = self.path.parent
-        return FileType(parent.name, parent)
+        return FileType(parent.name, parent.parent)
 
 
 class Task(DirObj):
-    pass
+    @property
+    def scripts(self) -> list["Script"]:
+        res = []
+        for p in self.path.iterdir():
+            if not p.is_dir():
+                continue
+            s = Script(p.name, self.path)
+            res.append(s)
+        return res
+
+
+class Script(DirObj):
+    @property
+    def task(self) -> Task:
+        parent = self.path.parent
+        return Task(parent.name, parent.parent)

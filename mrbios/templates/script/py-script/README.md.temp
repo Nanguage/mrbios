@@ -1,0 +1,6 @@
+# {{name}}
+
+{{description}}
+
++ Script file: [run.py](./run.py)
++ Interface defination: [interface.yaml](./interface.yaml)

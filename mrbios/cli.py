@@ -1,10 +1,10 @@
 from .core.project import Project
-from .utils.misc import list_env_templates, list_script_templates
+from .core.dir_obj import Env
+from .utils.template import list_env_templates, list_script_templates
 from .utils.log import console, Confirm, Prompt
 
 
-class ProjectManager():
-    """Tools for manage the project structure."""
+class SubCLI():
     def __init__(self, path="./"):
         self._proj = Project(path)
 
@@ -13,6 +13,9 @@ class ProjectManager():
         self._proj = Project(path)
         return self
 
+
+class ProjectManager(SubCLI):
+    """Tools for manage the project structure."""
     def add_env(self, name: str, template: str | None = None):
         """Add an environment to the project.
 
@@ -198,10 +201,65 @@ class ProjectManager():
             console.print(script_names)
 
 
+class EnvBuild(SubCLI):
+    """Tools for manage environments build."""
+    def _select_env(self, env_name: str | None = None) -> Env:
+        envs = self._proj.get_envs()
+        if len(envs) == 0:
+            console.log("No existing envs for build.")
+            return
+        if env_name is None:
+            env_name = Prompt.ask(
+                "Select a env",
+                choices=list(envs.keys()))
+        env = envs[env_name]
+        return env_name, env
+
+    def build(self, env_name: str | None = None):
+        """Build an env."""
+        env_name, env = self._select_env(env_name)
+        console.log(f"Start building [note]{env_name}[/note]")
+        env.build()
+        console.log(f"The env [note]{env_name}[/note] has aleardy been built.")
+
+    def build_all(self, force: bool = False):
+        """Build all unbuilt envs.
+
+        :param force: Force to build all envs.
+        """
+        envs = self._proj.get_envs()
+        for name, env in envs.items():
+            if (not env.is_built) or force:
+                console.log(
+                    f"Start building [note]{name}[/note]")
+                env.build()
+                console.log(
+                    f"The env [note]{name}[/note] has aleardy been built.")
+
+    def delete(self, env_name: str | None = None):
+        """Delete an built env."""
+        env_name, env = self._select_env(env_name)
+        remove = Confirm.ask(
+            "Do you want to remove the env "
+            f"[note]{env_name}[/note]?")
+        if remove:
+            env.delete_built()
+            console.log(
+                f"The env [note]{env_name}[/note] has aleardy been removed.")
+
+    def clear_all(self):
+        envs = self._proj.get_envs()
+        for name, env in envs.items():
+            env.delete_built()
+            console.log(
+                f"The env [note]{name}[/note] has aleardy been removed.")
+
+
 class CLI():
     def __init__(self):  # pragma: no cover
         # command groups
         self.project = ProjectManager()
+        self.env = EnvBuild()
 
 
 if __name__ == "__main__":

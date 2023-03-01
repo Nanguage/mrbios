@@ -2,7 +2,7 @@ import typing as T
 from pathlib import Path
 
 from ..utils.log import console
-from ..utils.misc import (
+from ..utils.template import (
     TemplatesRenderer, ENV_TEMPLATES_PATH,
     TEMPLATES_PATH, list_env_templates,
     FILE_TYPE_TEMPLATE_PATH,

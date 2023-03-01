@@ -1,9 +1,11 @@
 from pathlib import Path
 import shutil
 import json
+from datetime import datetime
 
 from ..utils.log import console
-from ..utils.misc import TemplatesRenderer
+from ..utils.template import TemplatesRenderer
+from .env_build import CondaEnvBuild
 
 
 class DirObj():
@@ -70,7 +72,41 @@ class DirObj():
 
 
 class Env(DirObj):
-    pass
+    @property
+    def build_config(self) -> CondaEnvBuild:
+        return CondaEnvBuild.from_config_file(self.path / "build.yaml")
+
+    def build(self):
+        self.build_config.build()
+        new_info = self.meta_info.copy()
+        new_info['build-time'] = str(datetime.now())
+        self.meta_info = new_info
+
+    def delete_built(self):
+        """Delete the built conda env."""
+        self.build_config.delete()
+        new_info = self.meta_info.copy()
+        new_info['build-time'] = None
+        self.meta_info = new_info
+
+    @property
+    def is_built(self) -> bool:
+        if self.meta_info.get("build-time") is None:
+            return False
+        else:
+            return True
+
+    def __repr__(self):
+        e = "created" if self.is_exist else "uncreated"
+        if self.is_built:
+            build_msg = "[note]built[/note]"
+        else:
+            build_msg = "[error]unbuilt[/error]"
+        msg = (
+            f"{self.class_name} at [path]{self.path}[/path] "
+            f"({e}, {build_msg})"
+        )
+        return msg
 
 
 class FileType(DirObj):

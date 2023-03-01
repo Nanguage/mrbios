@@ -31,16 +31,18 @@
 + CURD for
   * file type (done)
   * file format (done)
-  * task
-  * script
+  * task (done)
+  * script (done)
 + add meta file(JSON) for DirObjs (done)
-+ verbose mode for list DirObjs.
 + Environment build
   * conda env build
+    + support pip install
+    + support install R package with `install.packages`
   * docker image build
 + Script run
   * with CLI
   * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI
++ verbose mode for list DirObjs.
 
 
 ## Credits

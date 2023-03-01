@@ -1,0 +1,14 @@
+name: test2
+
+conda:
+  command: "mamba"
+  channels:
+    - conda-forge
+  deps:
+    - python==3.10
+
+pip:
+  deps:
+    - ipython
+    - ipdb
+    - fire

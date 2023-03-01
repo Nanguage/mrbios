@@ -37,6 +37,7 @@ with open("docs/requirements.txt") as f:
         if p:
             requires_doc.append(p)
 requires_dev_tools = ["pip", "setuptools", "wheel", "twine", "ipdb"]
+requires_type = ["types-PyYAML"]
 
 
 setup(
@@ -63,8 +64,11 @@ setup(
     version=get_version(),
     zip_safe=False,
     extras_require={
-        'test': requires_test,
+        'test': requires_test + requires_type,
         'doc': requires_doc,
-        'dev': requires_dev_tools + requires_test + requires_doc,
+        'dev': (
+            requires_dev_tools + requires_test +
+            requires_doc + requires_type
+        ),
     }
 )

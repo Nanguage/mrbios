@@ -203,11 +203,13 @@ class ProjectManager(SubCLI):
 
 class EnvBuild(SubCLI):
     """Tools for manage environments build."""
-    def _select_env(self, env_name: str | None = None) -> Env:
+    def _select_env(
+            self, env_name: str | None = None
+            ) -> tuple[str, Env] | None:
         envs = self._proj.get_envs()
         if len(envs) == 0:
             console.log("No existing envs for build.")
-            return
+            return None
         if env_name is None:
             env_name = Prompt.ask(
                 "Select a env",
@@ -217,10 +219,14 @@ class EnvBuild(SubCLI):
 
     def build(self, env_name: str | None = None):
         """Build an env."""
-        env_name, env = self._select_env(env_name)
-        console.log(f"Start building [note]{env_name}[/note]")
-        env.build()
-        console.log(f"The env [note]{env_name}[/note] has aleardy been built.")
+        name_and_env = self._select_env(env_name)
+        if name_and_env is not None:
+            env_name, env = name_and_env
+            console.log(f"Start building [note]{env_name}[/note]")
+            env.build()
+            console.log(
+                f"The env [note]{env_name}[/note] "
+                "has aleardy been built.")
 
     def build_all(self, force: bool = False):
         """Build all unbuilt envs.
@@ -238,14 +244,17 @@ class EnvBuild(SubCLI):
 
     def delete(self, env_name: str | None = None):
         """Delete an built env."""
-        env_name, env = self._select_env(env_name)
-        remove = Confirm.ask(
-            "Do you want to remove the env "
-            f"[note]{env_name}[/note]?")
-        if remove:
-            env.delete_built()
-            console.log(
-                f"The env [note]{env_name}[/note] has aleardy been removed.")
+        name_and_env = self._select_env(env_name)
+        if name_and_env is not None:
+            env_name, env = name_and_env
+            remove = Confirm.ask(
+                "Do you want to remove the env "
+                f"[note]{env_name}[/note]?")
+            if remove:
+                env.delete_built()
+                console.log(
+                    f"The env [note]{env_name}[/note] "
+                    "has aleardy been removed.")
 
     def clear_all(self):
         envs = self._proj.get_envs()

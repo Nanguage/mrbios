@@ -1,4 +1,5 @@
 import subprocess as subp
+from pathlib import Path
 
 import yaml
 
@@ -21,7 +22,7 @@ class CondaEnvBuild(EnvBuild):
             config.get("pip", {}))
 
     @classmethod
-    def from_config_file(cls, path: str) -> "CondaEnvBuild":
+    def from_config_file(cls, path: str | Path) -> "CondaEnvBuild":
         with open(path) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
         build = CondaEnvBuild(config)

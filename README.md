@@ -36,6 +36,7 @@
 + add meta file(JSON) for DirObjs (done)
 + Environment build
   * conda env build
+    + create env and install conda dependents (done)
     + support pip install
     + support install R package with `install.packages`
   * docker image build

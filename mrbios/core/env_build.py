@@ -31,6 +31,10 @@ class CondaEnvBuild(EnvBuild):
     def build(self):
         self.conda_config.check_command()
         self.conda_config.create_env()
+        if len(self.pip_config.dependents) > 0:
+            self.conda_config.run_under_env(
+                self.pip_config.get_install_command()
+            )
 
     def delete(self):
         self.conda_config.remove_env()
@@ -88,6 +92,11 @@ class CondaConfig():
         ]
         self._run_cmd(cmd, "remove")
 
+    def run_under_env(self, command: list[str]):
+        cmd = [self.command, "run", "-n", self.env_name]
+        cmd += command
+        self._run_cmd(cmd, "run command in")
+
 
 class PipConfig():
     def __init__(self, config: dict):
@@ -96,3 +105,8 @@ class PipConfig():
     @property
     def dependents(self) -> list[str]:
         return self.config.get("deps", [])
+
+    def get_install_command(self) -> list[str]:
+        cmd = ["pip", "install"]
+        cmd += self.dependents
+        return cmd

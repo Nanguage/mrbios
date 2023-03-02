@@ -13,7 +13,7 @@ TEST_PROJ = "./TestProj2"
 
 def test_command_exist():
     assert command_exist("conda")
-    assert command_exist("not_exist_command")
+    assert not command_exist("not_exist_command")
 
 
 def test_build_env(monkeypatch):

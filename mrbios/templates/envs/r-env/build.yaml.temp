@@ -1,0 +1,29 @@
+name: {{name}}
+
+conda:
+  command: "mamba"
+  channels:
+    - conda-forge
+    - r
+  deps:
+    - r-base
+    - r-essentials
+
+R:
+  # dependents for CRAN packages
+  cran:
+    mirror: https://mirrors.tuna.tsinghua.edu.cn/CRAN/
+    deps:
+      - BiocManager
+      - devtools
+  
+  # dependents for Bioconductor packages
+  biocondutor:
+    mirror: https://mirrors.tuna.tsinghua.edu.cn/bioconductor/
+    deps:
+      - GenomicRanges
+
+  # packages install with devtools
+  devtools:
+    deps:
+      - hadley/devtools

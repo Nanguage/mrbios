@@ -20,6 +20,8 @@ class CondaEnvBuild(EnvBuild):
             config.get("conda", {}))
         self.pip_config = PipConfig(
             config.get("pip", {}))
+        self.r_config = RConfig(
+            config.get("R", {}))
 
     @classmethod
     def from_config_file(cls, path: str | Path) -> "CondaEnvBuild":
@@ -99,6 +101,7 @@ class CondaConfig():
 
 
 class PipConfig():
+    """Pip config for conda env build."""
     def __init__(self, config: dict):
         self.config = config
 
@@ -107,6 +110,51 @@ class PipConfig():
         return self.config.get("deps", [])
 
     def get_install_command(self) -> list[str]:
+        """Get pip install command. """
         cmd = ["pip", "install"]
         cmd += self.dependents
+        return cmd
+
+
+class RConfig(EnvBuild):
+    """R config for conda env build."""
+    def __init__(self, config: dict):
+        self.config = config
+        # load config for cran, bioconductor, devtools
+        self.cran_config = config.get("cran", {})
+        self.bioconductor_config = config.get("bioconductor", {})
+        self.devtools_config = config.get("devtools", {})
+
+    @property
+    def cran_mirror(self) -> str:
+        default_mirror = "https://cloud.r-project.org/"
+        return self.cran_config.get("mirror", default_mirror)
+
+    @property
+    def cran_dependents(self) -> list[str]:
+        return self.cran_config.get("deps", [])
+
+    @property
+    def bioconductor_mirror(self) -> str:
+        default_mirror = "https://mirrors.tuna.tsinghua.edu.cn/bioconductor/"
+        return self.bioconductor_config.get(
+            "mirror", default_mirror)
+
+    @property
+    def bioconductor_dependents(self) -> list[str]:
+        return self.bioconductor_config.get("deps", [])
+
+    def get_cran_command(self) -> list[str]:
+        """Get cran install command. """
+        dependents = self.cran_dependents
+        if len(dependents) > 1:
+            dependents = [f"'{d}'" for d in dependents]
+            pkgs_str = f"c({', '.join(dependents)})"
+        else:
+            pkgs_str = f"'{dependents[0]}'"
+        install_inst = (
+            f"install.packages({pkgs_str}, "
+            f"repos='{self.cran_mirror}')"
+        )
+        cmd = ["Rscript", "-e", f'"{install_inst}"']
         return cmd

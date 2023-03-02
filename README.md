@@ -37,9 +37,15 @@
 + Environment build
   * conda env build
     + create env and install conda dependents (done)
-    + support pip install
+    + Run command under the conda env. (done)
+    + support pip install (done)
     + support install R package with `install.packages`
+    + support build compiled languages
+      * C/C++
+      * Rust
   * docker image build
++ Global state setting
+  * set global project path
 + Script run
   * with CLI
   * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI

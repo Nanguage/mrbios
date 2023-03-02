@@ -217,6 +217,8 @@ class EnvBuild(SubCLI):
         env = envs[env_name]
         return env_name, env
 
+    list = ProjectManager.list_envs
+
     def build(self, env_name: str | None = None):
         """Build an env."""
         name_and_env = self._select_env(env_name)
@@ -243,7 +245,7 @@ class EnvBuild(SubCLI):
                     f"The env [note]{name}[/note] has aleardy been built.")
 
     def delete(self, env_name: str | None = None):
-        """Delete an built env."""
+        """Delete a built env."""
         name_and_env = self._select_env(env_name)
         if name_and_env is not None:
             env_name, env = name_and_env
@@ -257,11 +259,33 @@ class EnvBuild(SubCLI):
                     "has aleardy been removed.")
 
     def clear_all(self):
+        """Delete all built env."""
         envs = self._proj.get_envs()
         for name, env in envs.items():
-            env.delete_built()
+            if env.is_built:
+                env.delete_built()
+                console.log(
+                    f"The env [note]{name}[/note] has aleardy been removed.")
+
+    def run(self, env_name: str | None = None, *command):
+        """Run command under an env."""
+        name_and_env = self._select_env(env_name)
+        if name_and_env:
+            env_name, env = name_and_env
+            if not env.is_built:
+                console.log(
+                    f"[error]The env [blue]{env_name}[/blue] not "
+                    "yet built. Please build it first.[/error]")
+                return
+            cmd = [str(i) for i in command]
+            cmd_str = " ".join(cmd)
             console.log(
-                f"The env [note]{name}[/note] has aleardy been removed.")
+                f"Run command '{cmd_str}' under "
+                f"env [note]{env_name}[/note].")
+            env.run_command(cmd)
+            console.log(
+                f"The command has been successfully "
+                f"run under env [note]{env_name}[/note].")
 
 
 class CLI():

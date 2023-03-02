@@ -96,6 +96,13 @@ class Env(DirObj):
         else:
             return True
 
+    def run_command(self, command: list[str]):
+        """Run command under the built env.
+
+        :param command: The command need to run.
+        """
+        self.build_config.conda_config.run_under_env(command)
+
     def __repr__(self):
         e = "created" if self.is_exist else "uncreated"
         if self.is_built:

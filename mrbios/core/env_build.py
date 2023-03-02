@@ -48,7 +48,7 @@ class CondaConfig():
         self.dependents = config.get("deps", [])
         self.command = self.config.get("command", "conda")
 
-    def check_command(self):
+    def check_command(self):  # pragma: no cover
         if not command_exist(self.command):
             if self.command != "conda":
                 console.log(
@@ -69,21 +69,18 @@ class CondaConfig():
 
     def _run_cmd(self, cmd: list[str], cmd_name: str):
         cmd_str = " ".join(cmd)
-        console.log(f"Run command '[note]{cmd_str}[/note]'")
+        console.log(f"Run command '{cmd_str}'")
         try:
             subp.check_call(cmd)
         except Exception as e:
             console.log(
-                f"[error]Failed to {cmd_name} env {self.env_name}[error]")
+                f"[error]Failed to {cmd_name} env "
+                f"[note]{self.env_name}[/note][error]")
             raise e
 
     def create_env(self):
         cmd = self._get_cmd("create")
         self._run_cmd(cmd, "create")
-
-    def install_dependents(self):
-        cmd = self._get_cmd("install")
-        self._run_cmd(cmd, "install")
 
     def remove_env(self):
         cmd = [
@@ -93,7 +90,10 @@ class CondaConfig():
         self._run_cmd(cmd, "remove")
 
     def run_under_env(self, command: list[str]):
-        cmd = [self.command, "run", "-n", self.env_name]
+        cmd = [
+            self.command, "run", "--live-stream",
+            "-n", self.env_name
+        ]
         cmd += command
         self._run_cmd(cmd, "run command in")
 

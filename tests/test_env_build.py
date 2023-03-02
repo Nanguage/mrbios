@@ -37,6 +37,10 @@ def test_build_env(monkeypatch):
     env_build.run("test1", "pip", "install", "h5py")
     with pytest.raises(CalledProcessError):
         env_build.run("test1", "not_exist_command")
+    monkeypatch.setattr(
+        "sys.stdin", io.StringIO("test1"))
+    env_build.rebuild()
+    env_build.rebuild_all()
     env_build.clear_all()
     assert not env_build._proj.get_envs()['test1'].is_built
     assert not env_build._proj.get_envs()['test2'].is_built

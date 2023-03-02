@@ -33,9 +33,25 @@ class CondaEnvBuild(EnvBuild):
     def build(self):
         self.conda_config.check_command()
         self.conda_config.create_env()
+        # Install pip packages
         if len(self.pip_config.dependents) > 0:
             self.conda_config.run_under_env(
                 self.pip_config.get_install_command()
+            )
+        # Install CRAN packages
+        if len(self.r_config.cran_dependents) > 0:
+            self.conda_config.run_under_env(
+                self.r_config.get_cran_command()
+            )
+        # Install Bioconductor packages
+        if len(self.r_config.bioconductor_dependents) > 0:
+            self.conda_config.run_under_env(
+                self.r_config.get_bioconductor_command()
+            )
+        # Install github packages
+        if len(self.r_config.github_dependents) > 0:
+            self.conda_config.run_under_env(
+                self.r_config.get_devtools_command()
             )
 
     def delete(self):
@@ -123,7 +139,7 @@ class RConfig(EnvBuild):
         # load config for cran, bioconductor, devtools
         self.cran_config = config.get("cran", {})
         self.bioconductor_config = config.get("bioconductor", {})
-        self.devtools_config = config.get("devtools", {})
+        self.devtools_config = config.get("github", {})
 
     @property
     def cran_mirror(self) -> str:
@@ -135,14 +151,16 @@ class RConfig(EnvBuild):
         return self.cran_config.get("deps", [])
 
     @property
-    def bioconductor_mirror(self) -> str:
-        default_mirror = "https://mirrors.tuna.tsinghua.edu.cn/bioconductor/"
-        return self.bioconductor_config.get(
-            "mirror", default_mirror)
+    def bioconductor_mirror(self) -> str | None:
+        return self.bioconductor_config.get("mirror")
 
     @property
     def bioconductor_dependents(self) -> list[str]:
         return self.bioconductor_config.get("deps", [])
+
+    @property
+    def github_dependents(self) -> list[str]:
+        return self.devtools_config.get("deps", [])
 
     def get_cran_command(self) -> list[str]:
         """Get cran install command. """
@@ -155,6 +173,43 @@ class RConfig(EnvBuild):
         install_inst = (
             f"install.packages({pkgs_str}, "
             f"repos='{self.cran_mirror}')"
+        )
+        cmd = ["Rscript", "-e", f'"{install_inst}"']
+        return cmd
+
+    def get_bioconductor_command(self) -> list[str]:
+        """Get bioconductor install command. """
+        dependents = self.bioconductor_dependents
+        if len(dependents) > 1:
+            dependents = [f"'{d}'" for d in dependents]
+            pkgs_str = f"c({', '.join(dependents)})"
+        else:
+            pkgs_str = f"'{dependents[0]}'"
+        install_inst = (
+            "if (!requireNamespace('BiocManager', quietly = TRUE)) "
+            "install.packages('BiocManager'); "
+            f"BiocManager::install({pkgs_str})"
+        )
+        if self.bioconductor_mirror is not None:  # pargma: no cover
+            install_inst = (
+                f"options(BioC_mirror='{self.bioconductor_mirror}'); " + 
+                install_inst
+            )
+        cmd = ["Rscript", "-e", f'"{install_inst}"']
+        return cmd
+
+    def get_devtools_command(self) -> list[str]:
+        """Get devtools install command. """
+        dependents = self.github_dependents
+        if len(dependents) > 1:
+            dependents = [f"'{d}'" for d in dependents]
+            pkgs_str = f"c({', '.join(dependents)})"
+        else:
+            pkgs_str = f"'{dependents[0]}'"
+        install_inst = (
+            "if (!requireNamespace('devtools', quietly = TRUE)) "
+            "install.packages('devtools'); "
+            f"devtools::install_github({pkgs_str})"
         )
         cmd = ["Rscript", "-e", f'"{install_inst}"']
         return cmd

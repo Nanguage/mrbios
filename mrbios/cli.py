@@ -267,6 +267,35 @@ class EnvBuild(SubCLI):
                 console.log(
                     f"The env [note]{name}[/note] has aleardy been removed.")
 
+    def rebuild(self, env_name: str | None = None):
+        """Rebuild a built env."""
+        name_and_env = self._select_env(env_name)
+        if name_and_env is not None:
+            env_name, env = name_and_env
+            if env.is_built:
+                env.delete_built()
+                console.log(
+                    f"The env [note]{env_name}[/note] "
+                    "has aleardy been removed.")
+            console.log(f"Start building [note]{env_name}[/note]")
+            env.build()
+            console.log(
+                f"The env [note]{env_name}[/note] "
+                "has aleardy been built.")
+
+    def rebuild_all(self):
+        """Rebuild all built envs."""
+        envs = self._proj.get_envs()
+        for name, env in envs.items():
+            if env.is_built:
+                env.delete_built()
+                console.log(
+                    f"The env [note]{name}[/note] has aleardy been removed.")
+                console.log(f"Start building [note]{name}[/note]")
+                env.build()
+                console.log(
+                    f"The env [note]{name}[/note] has aleardy been built.")
+
     def run(self, env_name: str | None = None, *command):
         """Run command under an env."""
         name_and_env = self._select_env(env_name)

@@ -1,5 +1,6 @@
 import subprocess as subp
 from pathlib import Path
+import os
 
 import yaml
 
@@ -31,28 +32,30 @@ class CondaEnvBuild(EnvBuild):
         return build
 
     def build(self):
-        self.conda_config.check_command()
+        self.conda_config.check_install_command()
         self.conda_config.create_env()
         # Install pip packages
-        if len(self.pip_config.dependents) > 0:
+        if not self.pip_config.is_empty:
             self.conda_config.run_under_env(
                 self.pip_config.get_install_command()
             )
-        # Install CRAN packages
-        if len(self.r_config.cran_dependents) > 0:
-            self.conda_config.run_under_env(
-                self.r_config.get_cran_command()
-            )
-        # Install Bioconductor packages
-        if len(self.r_config.bioconductor_dependents) > 0:
-            self.conda_config.run_under_env(
-                self.r_config.get_bioconductor_command()
-            )
-        # Install github packages
-        if len(self.r_config.github_dependents) > 0:
-            self.conda_config.run_under_env(
-                self.r_config.get_devtools_command()
-            )
+        if not self.r_config.is_empty:
+            self.conda_config.set_r_lib_path()
+            # Install CRAN packages
+            if len(self.r_config.cran_dependents) > 0:
+                self.conda_config.run_under_env(
+                    self.r_config.get_cran_command()
+                )
+            # Install Bioconductor packages
+            if len(self.r_config.bioconductor_dependents) > 0:
+                self.conda_config.run_under_env(
+                    self.r_config.get_bioconductor_command()
+                )
+            # Install github packages
+            if len(self.r_config.github_dependents) > 0:
+                self.conda_config.run_under_env(
+                    self.r_config.get_devtools_command()
+                )
 
     def delete(self):
         self.conda_config.remove_env()
@@ -64,21 +67,21 @@ class CondaConfig():
         self.config = config
         self.channels = config.get("channels", [])
         self.dependents = config.get("deps", [])
-        self.command = self.config.get("command", "conda")
+        self.install_command = self.config.get("install_command", "conda")
 
-    def check_command(self):  # pragma: no cover
-        if not command_exist(self.command):
-            if self.command != "conda":
+    def check_install_command(self):  # pragma: no cover
+        if not command_exist(self.install_command):
+            if self.install_command != "conda":
                 console.log(
-                    f"[error]{self.command} not installed, "
+                    f"[error]{self.install_command} not installed, "
                     "turn to using conda[/error]")
-                self.command = "conda"
-                self.check_command()
+                self.install_command = "conda"
+                self.check_install_command()
             else:
                 raise SystemError("Conda is not installed.")
 
-    def _get_cmd(self, main_cmd: str) -> list[str]:
-        cmd = [self.command, main_cmd, "-n", self.env_name]
+    def _get_install_cmd(self, main_cmd: str) -> list[str]:
+        cmd = [self.install_command, main_cmd, "-n", self.env_name]
         for c in self.channels:
             cmd.append("-c")
             cmd.append(c)
@@ -87,9 +90,9 @@ class CondaConfig():
 
     def _run_cmd(self, cmd: list[str], cmd_name: str):
         cmd_str = " ".join(cmd)
-        console.log(f"Run command '{cmd_str}'")
+        console.log(f"Run command [path]{cmd_str}[/path]")
         try:
-            subp.check_call(cmd)
+            subp.check_call(cmd, env=os.environ.copy())
         except Exception as e:
             console.log(
                 f"[error]Failed to {cmd_name} env "
@@ -97,29 +100,61 @@ class CondaConfig():
             raise e
 
     def create_env(self):
-        cmd = self._get_cmd("create")
+        cmd = self._get_install_cmd("create")
         self._run_cmd(cmd, "create")
 
     def remove_env(self):
         cmd = [
-            self.command, "env", "remove", "-n",
+            "conda", "env", "remove", "-n",
             self.env_name
         ]
         self._run_cmd(cmd, "remove")
 
-    def run_under_env(self, command: list[str]):
+    def _get_conda_run_cmd(self, command: list[str]) -> list[str]:
+        """Get the command to run under conda env."""
         cmd = [
-            self.command, "run", "--live-stream",
+            "conda", "run", "--no-capture-output",
             "-n", self.env_name
         ]
         cmd += command
+        return cmd
+
+    def run_under_env(self, command: list[str]):
+        """Run command under conda env."""
+        cmd = self._get_conda_run_cmd(command)
         self._run_cmd(cmd, "run command in")
+
+    @property
+    def env_path(self) -> Path:
+        """Get the path of conda env."""
+        # get the output of conda env list
+        cmd = ["conda", "env", "list"]
+        cmd = self._get_conda_run_cmd(cmd)
+        out = subp.check_output(cmd).decode()
+        # find the path of env
+        for line in out.splitlines():
+            if "*" in line:
+                env_path = line.split()[2]
+                return Path(env_path)
+        else:
+            raise ValueError("Cannot find conda env path.")
+
+    def set_r_lib_path(self):
+        """Set the R_LIBS_USER env variable."""
+        env_path = self.env_path
+        r_lib_path = env_path / "Lib/R/library"
+        console.log(f"Set R_LIBS_USER to [path]{r_lib_path}[/path]")
+        os.environ["R_LIBS_USER"] = str(r_lib_path)
 
 
 class PipConfig():
     """Pip config for conda env build."""
     def __init__(self, config: dict):
         self.config = config
+
+    @property
+    def is_empty(self) -> bool:
+        return len(self.dependents) == 0
 
     @property
     def dependents(self) -> list[str]:
@@ -140,6 +175,12 @@ class RConfig(EnvBuild):
         self.cran_config = config.get("cran", {})
         self.bioconductor_config = config.get("bioconductor", {})
         self.devtools_config = config.get("github", {})
+
+    @property
+    def is_empty(self) -> bool:
+        return len(self.cran_dependents) == 0 and \
+            len(self.bioconductor_dependents) == 0 and \
+            len(self.github_dependents) == 0
 
     @property
     def cran_mirror(self) -> str:
@@ -174,7 +215,7 @@ class RConfig(EnvBuild):
             f"install.packages({pkgs_str}, "
             f"repos='{self.cran_mirror}')"
         )
-        cmd = ["Rscript", "-e", f'"{install_inst}"']
+        cmd = ["Rscript", "-e", f'{install_inst}']
         return cmd
 
     def get_bioconductor_command(self) -> list[str]:
@@ -192,10 +233,10 @@ class RConfig(EnvBuild):
         )
         if self.bioconductor_mirror is not None:  # pargma: no cover
             install_inst = (
-                f"options(BioC_mirror='{self.bioconductor_mirror}'); " + 
+                f"options(BioC_mirror='{self.bioconductor_mirror}'); " +
                 install_inst
             )
-        cmd = ["Rscript", "-e", f'"{install_inst}"']
+        cmd = ["Rscript", "-e", f'{install_inst}']
         return cmd
 
     def get_devtools_command(self) -> list[str]:
@@ -211,5 +252,5 @@ class RConfig(EnvBuild):
             "install.packages('devtools'); "
             f"devtools::install_github({pkgs_str})"
         )
-        cmd = ["Rscript", "-e", f'"{install_inst}"']
+        cmd = ["Rscript", "-e", f'{install_inst}']
         return cmd

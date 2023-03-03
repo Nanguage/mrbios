@@ -1,7 +1,7 @@
 name: {{name}}
 
 conda:
-  command: "mamba"
+  install_command: "mamba"
   channels:
     - conda-forge
     - r
@@ -18,7 +18,7 @@ R:
       - devtools
   
   # dependents for Bioconductor packages
-  biocondutor:
+  bioconductor:
     deps:
       - GenomicRanges
 

@@ -47,3 +47,15 @@ def test_build_env(monkeypatch):
     env_build.run("test1", "pip", "install", "h5py")
     env_build.list()
     shutil.rmtree(TEST_PROJ)
+
+
+def test_build_R_env(monkeypatch):
+    project = ProjectManager()
+    project.create(TEST_PROJ)
+    env_build = EnvBuild(TEST_PROJ)
+    env_build._proj.add_env("test3", "r-env")
+    monkeypatch.setattr(
+        "sys.stdin", io.StringIO("test3"))
+    env_build.build()
+    assert env_build._proj.get_envs()['test3'].is_built
+    shutil.rmtree(TEST_PROJ)

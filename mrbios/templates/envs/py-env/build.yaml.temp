@@ -1,7 +1,7 @@
 name: {{name}}
 
 conda:
-  command: "mamba"
+  install_command: "mamba"
   channels:
     - conda-forge
   deps:

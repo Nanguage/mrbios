@@ -58,4 +58,5 @@ def test_build_R_env(monkeypatch):
         "sys.stdin", io.StringIO("test3"))
     env_build.build()
     assert env_build._proj.get_envs()['test3'].is_built
+    env_build.delete("test3")
     shutil.rmtree(TEST_PROJ)

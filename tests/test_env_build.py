@@ -34,9 +34,9 @@ def test_build_env(monkeypatch):
     env_build.build_all()
     assert env_build._proj.get_envs()['test1'].is_built
     assert env_build._proj.get_envs()['test2'].is_built
-    env_build.run("test1", "pip", "install", "h5py")
+    env_build.run("pip install h5py", "test1")
     with pytest.raises(CalledProcessError):
-        env_build.run("test1", "not_exist_command")
+        env_build.run("not_exist_command", "test1")
     monkeypatch.setattr(
         "sys.stdin", io.StringIO("test1"))
     env_build.rebuild()
@@ -44,7 +44,7 @@ def test_build_env(monkeypatch):
     env_build.clear_all()
     assert not env_build._proj.get_envs()['test1'].is_built
     assert not env_build._proj.get_envs()['test2'].is_built
-    env_build.run("test1", "pip", "install", "h5py")
+    env_build.run("pip install h5py", "test1")
     env_build.list()
     shutil.rmtree(TEST_PROJ)
 
@@ -58,5 +58,9 @@ def test_build_R_env(monkeypatch):
         "sys.stdin", io.StringIO("test3"))
     env_build.build()
     assert env_build._proj.get_envs()['test3'].is_built
+    env_build.run("Rscript -e library(devtools)", "test3")
+    env_build.run("Rscript -e library(BiocManager)", "test3")
+    env_build.run("Rscript -e library(GenomicRanges)", "test3")
+    monkeypatch.setattr("sys.stdin", io.StringIO("y"))
     env_build.delete("test3")
     shutil.rmtree(TEST_PROJ)

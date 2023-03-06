@@ -1,3 +1,5 @@
+import shlex
+
 from .core.project import Project
 from .core.dir_obj import Env
 from .utils.template import list_env_templates, list_script_templates
@@ -296,7 +298,7 @@ class EnvBuild(SubCLI):
                 console.log(
                     f"The env [note]{name}[/note] has aleardy been built.")
 
-    def run(self, env_name: str | None = None, *command):
+    def run(self, command: str, env_name: str | None = None):
         """Run command under an env."""
         name_and_env = self._select_env(env_name)
         if name_and_env:
@@ -306,10 +308,9 @@ class EnvBuild(SubCLI):
                     f"[error]The env [blue]{env_name}[/blue] not "
                     "yet built. Please build it first.[/error]")
                 return
-            cmd = [str(i) for i in command]
-            cmd_str = " ".join(cmd)
+            cmd = shlex.split(command)
             console.log(
-                f"Run command '{cmd_str}' under "
+                f"Run command '{command}' under "
                 f"env [note]{env_name}[/note].")
             env.run_command(cmd)
             console.log(

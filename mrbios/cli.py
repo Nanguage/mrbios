@@ -1,23 +1,47 @@
 import shlex
+import os.path
+from pathlib import Path
 
 from .core.project import Project
 from .core.dir_obj import Env
 from .utils.template import list_env_templates, list_script_templates
 from .utils.log import console, Confirm, Prompt
+from .utils.user_setting import UserSetting, DEFAULT_SETTING_PATH
 
 
 class SubCLI():
-    def __init__(self, path="./"):
+    def __init__(self, user_setting: UserSetting | None = None):
+        if user_setting is None:
+            user_setting = UserSetting(DEFAULT_SETTING_PATH)
+        self._user_setting = user_setting
+        path = user_setting.attrs.get("project_path", "./")
         self._proj = Project(path)
 
-    def set_path(self, path="./"):
-        """Set current project path(default './')."""
-        self._proj = Project(path)
-        return self
+    def print_working_path(self):
+        """Print the working project path."""
+        console.log(
+            "Working at: "
+            f"[path]{self._proj.path}[/path]")
 
 
 class ProjectManager(SubCLI):
     """Tools for manage the project structure."""
+
+    def set_working(self, path: str):
+        """Set working project path."""
+        path = os.path.abspath(path)
+        self._user_setting.update({"project_path": path})
+        self._proj = Project(path)
+        console.log(
+            "Set working project path "
+            f"to [path]{path}[/path]")
+
+    def create(self, path: str):
+        """Create a project to specific path."""
+        proj = Project(path)
+        proj.create()
+        self.set_working(path)
+
     def add_env(self, name: str, template: str | None = None):
         """Add an environment to the project.
 
@@ -26,6 +50,7 @@ class ProjectManager(SubCLI):
         Using `list_env_templates` to see all
         available env templates.
         """
+        self.print_working_path()
         if template is None:
             templates = list_env_templates()
             template = Prompt.ask(
@@ -36,6 +61,7 @@ class ProjectManager(SubCLI):
 
     def remove_env(self, name: str):
         """Remove an environment."""
+        self.print_working_path()
         is_remove = Confirm.ask(
             f"Do you want to remove env: [note]{name}[/note]?")
         if is_remove:
@@ -43,6 +69,7 @@ class ProjectManager(SubCLI):
 
     def list_envs(self):
         """List all existing envs."""
+        self.print_working_path()
         msg = "Existing envs:\n"
         for env in self._proj.get_envs().values():
             msg += repr(env) + "\n"
@@ -53,17 +80,12 @@ class ProjectManager(SubCLI):
         console.log("Available env templates:")
         console.print(list_env_templates())
 
-    def create(self, path: str):
-        """Create a project to specific path."""
-        proj = Project(path)
-        proj.create()
-        self._proj = proj
-
     def add_file_type(
             self, name: str,
             description: str | None = None,
             ):
         """Add a file type"""
+        self.print_working_path()
         if description is None:
             description = Prompt.ask(
                 "[blue]Give a short description about the file type[/blue]"
@@ -72,6 +94,7 @@ class ProjectManager(SubCLI):
 
     def remove_file_type(self, name: str):
         """Remove a file type."""
+        self.print_working_path()
         is_remove = Confirm.ask(
             f"Do you want to remove file type: [note]{name}[/note]?")
         if is_remove:
@@ -79,6 +102,7 @@ class ProjectManager(SubCLI):
 
     def list_file_types(self):
         """List all existing file types."""
+        self.print_working_path()
         msg = "Existing file types:\n"
         for ft in self._proj.get_file_types().values():
             msg += repr(ft) + "\n"
@@ -89,6 +113,7 @@ class ProjectManager(SubCLI):
             file_type: str | None = None,
             description: str | None = None):
         """Add a file format"""
+        self.print_working_path()
         if file_type is None:
             file_types = [
                 ft.name for ft in
@@ -106,6 +131,7 @@ class ProjectManager(SubCLI):
 
     def remove_file_format(self, file_type: str, name: str):
         """Remove a file format."""
+        self.print_working_path()
         is_remove = Confirm.ask(
             "Do you want to remove file format: "
             f"[note]{file_type}/{name}[/note]?")
@@ -117,6 +143,7 @@ class ProjectManager(SubCLI):
 
         :param file_type: Specify file_type, if not set will list all.
         """
+        self.print_working_path()
         if file_type.lower() == "all":
             info = self._proj.get_all_file_formats()
             for ft_name, formats in info.items():
@@ -131,6 +158,7 @@ class ProjectManager(SubCLI):
 
     def add_task(self, name: str, description: str | None = None):
         """Add a task."""
+        self.print_working_path()
         if description is None:
             description = Prompt.ask(
                 "[blue]Give a short description about the task[/blue]"
@@ -139,6 +167,7 @@ class ProjectManager(SubCLI):
 
     def remove_task(self, name: str):
         """Remove a task."""
+        self.print_working_path()
         is_remove = Confirm.ask(
             f"Do you want to remove task: [note]{name}[/note]?")
         if is_remove:
@@ -146,6 +175,7 @@ class ProjectManager(SubCLI):
 
     def list_tasks(self):
         """List all existing tasks."""
+        self.print_working_path()
         msg = "Existing tasks:\n"
         for task in self._proj.get_tasks().values():
             msg += repr(task) + "\n"
@@ -157,6 +187,7 @@ class ProjectManager(SubCLI):
             template: str | None = None,
             description: str | None = None):
         """Add a script."""
+        self.print_working_path()
         if task is None:
             tasks = [
                 t.name for t in
@@ -179,6 +210,7 @@ class ProjectManager(SubCLI):
 
     def remove_script(self, task: str, name: str):
         """Remove a script."""
+        self.print_working_path()
         is_remove = Confirm.ask(
             "Do you want to remove script: "
             f"[note]{task}/{name}[/note]?")
@@ -190,6 +222,7 @@ class ProjectManager(SubCLI):
 
         :param task: Specify task, if not set will list all.
         """
+        self.print_working_path()
         if task.lower() == "all":
             info = self._proj.get_all_scripts()
             for task_name, scripts in info.items():
@@ -223,6 +256,7 @@ class EnvBuild(SubCLI):
 
     def build(self, env_name: str | None = None):
         """Build an env."""
+        self.print_working_path()
         name_and_env = self._select_env(env_name)
         if name_and_env is not None:
             env_name, env = name_and_env
@@ -237,6 +271,7 @@ class EnvBuild(SubCLI):
 
         :param force: Force to build all envs.
         """
+        self.print_working_path()
         envs = self._proj.get_envs()
         for name, env in envs.items():
             if (not env.is_built) or force:
@@ -248,6 +283,7 @@ class EnvBuild(SubCLI):
 
     def delete(self, env_name: str | None = None):
         """Delete a built env."""
+        self.print_working_path()
         name_and_env = self._select_env(env_name)
         if name_and_env is not None:
             env_name, env = name_and_env
@@ -262,6 +298,7 @@ class EnvBuild(SubCLI):
 
     def clear_all(self):
         """Delete all built env."""
+        self.print_working_path()
         envs = self._proj.get_envs()
         for name, env in envs.items():
             if env.is_built:
@@ -271,6 +308,7 @@ class EnvBuild(SubCLI):
 
     def rebuild(self, env_name: str | None = None):
         """Rebuild a built env."""
+        self.print_working_path()
         name_and_env = self._select_env(env_name)
         if name_and_env is not None:
             env_name, env = name_and_env
@@ -287,6 +325,7 @@ class EnvBuild(SubCLI):
 
     def rebuild_all(self):
         """Rebuild all built envs."""
+        self.print_working_path()
         envs = self._proj.get_envs()
         for name, env in envs.items():
             if env.is_built:
@@ -300,6 +339,7 @@ class EnvBuild(SubCLI):
 
     def run(self, command: str, env_name: str | None = None):
         """Run command under an env."""
+        self.print_working_path()
         name_and_env = self._select_env(env_name)
         if name_and_env:
             env_name, env = name_and_env
@@ -319,10 +359,16 @@ class EnvBuild(SubCLI):
 
 
 class CLI():
-    def __init__(self):  # pragma: no cover
+    def __init__(
+            self,
+            user_setting_path: str = str(DEFAULT_SETTING_PATH),
+            ):
+        self._user_setting = UserSetting(Path(user_setting_path))
+        console.log(
+            f"Using user setting: [note]{user_setting_path}[/note]")
         # command groups
-        self.project = ProjectManager()
-        self.env = EnvBuild()
+        self.project = ProjectManager(self._user_setting)
+        self.env = EnvBuild(self._user_setting)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from .env_build import CondaEnvBuild
 
 
 class DirObj():
+    """Abstract class for the child directory under the project root."""
     def __init__(self, name: str, base_path: Path):
         self.name = name
         self.base_path = base_path
@@ -82,6 +83,9 @@ class Env(DirObj):
         new_info['build-time'] = str(datetime.now())
         self.meta_info = new_info
 
+    def build_name(self) -> str:
+        return self.build_config.env_name
+
     def delete_built(self):
         """Delete the built conda env."""
         self.build_config.delete()
@@ -91,10 +95,7 @@ class Env(DirObj):
 
     @property
     def is_built(self) -> bool:
-        if self.meta_info.get("build-time") is None:
-            return False
-        else:
-            return True
+        return self.build_config.conda_config.is_built
 
     def run_command(self, command: list[str]):
         """Run command under the built env.

@@ -11,7 +11,10 @@ TEST_PROJ = "./TestProj"
 
 def test_create():
     pr = ProjectManager()
+    with pytest.raises(IOError):
+        pr._proj.check_exist()
     pr.create(TEST_PROJ)
+    assert 'mrbios-version' in pr._proj.meta_info
     assert pr._proj.name == TEST_PROJ.removeprefix("./")
     assert pr._proj.path.exists()
     assert pr._proj.sub_paths.env.exists()
@@ -24,7 +27,7 @@ def test_create():
 
 def test_list_env_templates():
     pr = ProjectManager()
-    pr.set_path(TEST_PROJ)
+    pr.set_working(TEST_PROJ)
     pr.list_env_templates()
 
 

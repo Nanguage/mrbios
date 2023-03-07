@@ -1,5 +1,7 @@
 import typing as T
 from pathlib import Path
+import json
+from datetime import datetime
 
 from ..utils.log import console
 from ..utils.template import (
@@ -26,6 +28,19 @@ class SubPaths(T.NamedTuple):
     format: Path
 
 
+def path_is_project(path: Path) -> bool:
+    """Check if the path is a project."""
+    if not (path / ".meta.json").exists():
+        return False
+    else:
+        flag = False
+        with open(path / ".meta.json") as f:
+            info = json.load(f)
+            if "mrbios-version" in info:
+                flag = True
+        return flag
+
+
 class Project():
     """Abscraction of the project."""
     def __init__(self, path: str):
@@ -46,6 +61,36 @@ class Project():
             p / "Formats",
         )
 
+    @property
+    def is_exist(self) -> bool:
+        """Check if the project exists."""
+        return self.path.exists()
+
+    def check_exist(self):
+        """Check if the project exists."""
+        if not self.is_exist:
+            raise IOError(
+                f"Project '{self.name}({self.path})' is not exist."
+                " Please create it first.")
+
+    @property
+    def meta_info(self) -> dict:
+        """Get the meta info of the project."""
+        self.check_exist()
+        meta_file = self.path / ".meta.json"
+        if not meta_file.exists():  # pragma: no cover
+            return {}
+        with open(meta_file) as f:
+            return json.load(f)
+
+    @meta_info.setter
+    def meta_info(self, value: dict):
+        """Set the meta info of the project."""
+        self.check_exist()
+        meta_file = self.path / ".meta.json"
+        with open(meta_file, 'w') as f:
+            json.dump(value, f, indent=4)
+
     def create(self):
         """Create the project."""
         console.log(
@@ -56,6 +101,12 @@ class Project():
         for sub in self.sub_paths:
             if not sub.exists():
                 sub.mkdir(parents=True)
+        # init meta info
+        from .. import __version__
+        self.meta_info = {
+            "mrbios-version": __version__,
+            "created-time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
         # copy files
         renderer = TemplatesRenderer(
             TEMPLATES_PATH / "root",
@@ -74,10 +125,12 @@ class Project():
 
     def get_envs(self) -> dict[str, Env]:
         """Get all environments in this project."""
+        self.check_exist()
         return self._get_dirobjs(self.sub_paths.env, Env)
 
     def add_env(self, name: str, template: str = "py-env"):
         """Add a new environment."""
+        self.check_exist()
         templates_path = ENV_TEMPLATES_PATH / template
         if not templates_path.exists():
             err_msg = f"Template '{template}' is not found."
@@ -89,15 +142,18 @@ class Project():
 
     def remove_env(self, name: str):
         """Remove a env."""
+        self.check_exist()
         env = Env(name, self.sub_paths.env)
         env.delete()
 
     def get_file_types(self) -> dict[str, FileType]:
         """Get all file types"""
+        self.check_exist()
         return self._get_dirobjs(self.sub_paths.format, FileType)
 
     def add_file_type(self, name: str, description: str):
         """Add a new file type."""
+        self.check_exist()
         file_type = FileType(name, self.sub_paths.format)
         file_type.create(
             FILE_TYPE_TEMPLATE_PATH,
@@ -106,6 +162,7 @@ class Project():
 
     def remove_file_type(self, name: str):
         """Remove a file type."""
+        self.check_exist()
         file_type = FileType(name, self.sub_paths.format)
         file_type.delete()
 
@@ -113,6 +170,7 @@ class Project():
             self, file_type: str, name: str,
             description: str):
         """Add a new file format"""
+        self.check_exist()
         type_path = self.sub_paths.format / file_type
         if not type_path.exists():
             raise IOError(
@@ -125,6 +183,7 @@ class Project():
 
     def remove_file_format(self, file_type: str, name: str):
         """Remove a file format"""
+        self.check_exist()
         type_path = self.sub_paths.format / file_type
         if not type_path.exists():
             raise IOError(
@@ -134,6 +193,7 @@ class Project():
 
     def get_file_formats(self, file_type: str) -> dict[str, FileFormat]:
         """Get file formats in specific file type."""
+        self.check_exist()
         type_path = self.sub_paths.format / file_type
         if not type_path.exists():
             raise IOError(
@@ -146,6 +206,7 @@ class Project():
 
     def get_all_file_formats(self) -> dict[str, dict[str, FileFormat]]:
         """Get all file formats."""
+        self.check_exist()
         info = {}
         for path in self.sub_paths.format.iterdir():
             if path.is_dir():
@@ -155,6 +216,7 @@ class Project():
 
     def add_task(self, name: str, description: str):
         """Add a new task."""
+        self.check_exist()
         task = Task(name, self.sub_paths.task)
         task.create(
             TASK_TEMPLATE_PATH,
@@ -163,11 +225,13 @@ class Project():
 
     def remove_task(self, name):
         """Remove a task."""
+        self.check_exist()
         task = Task(name, self.sub_paths.task)
         task.delete()
 
     def get_tasks(self) -> dict[str, Task]:
         """Get all tasks."""
+        self.check_exist()
         return self._get_dirobjs(self.sub_paths.task, Task)
 
     def add_script(
@@ -175,6 +239,7 @@ class Project():
             template: str,
             description: str):
         """Add a new script."""
+        self.check_exist()
         task_path = self.sub_paths.task / task
         if not task_path.exists():
             raise IOError(
@@ -195,6 +260,7 @@ class Project():
 
     def remove_script(self, task: str, name: str):
         """Remove a script."""
+        self.check_exist()
         task_path = self.sub_paths.task / task
         if not task_path.exists():
             raise IOError(
@@ -204,6 +270,7 @@ class Project():
 
     def get_scripts(self, task: str) -> dict[str, Script]:
         """Get scripts in specific task."""
+        self.check_exist()
         task_path = self.sub_paths.task / task
         if not task_path.exists():
             raise IOError(
@@ -216,6 +283,7 @@ class Project():
 
     def get_all_scripts(self) -> dict[str, dict[str, Script]]:
         """Get all scripts."""
+        self.check_exist()
         info = {}
         for path in self.sub_paths.task.iterdir():
             if path.is_dir():

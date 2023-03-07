@@ -13,9 +13,9 @@ class EnvBuild():
 
 
 class CondaEnvBuild(EnvBuild):
-    def __init__(self, config: dict):
+    def __init__(self, project_name: str, config: dict):
         self.config = config
-        self.env_name = config['name']
+        self.env_name = f"{project_name}-{config['name']}"
         self.conda_config = CondaConfig(
             self.env_name,
             config.get("conda", {}))
@@ -28,7 +28,8 @@ class CondaEnvBuild(EnvBuild):
     def from_config_file(cls, path: str | Path) -> "CondaEnvBuild":
         with open(path) as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
-        build = CondaEnvBuild(config)
+        project_name = Path(path).parent.parent.parent.name
+        build = CondaEnvBuild(project_name, config)
         return build
 
     def build(self):
@@ -139,6 +140,18 @@ class CondaConfig():
         else:
             raise ValueError("Cannot find conda env path.")
 
+    @property
+    def is_built(self) -> bool:
+        """Check if the env is built."""
+        cmd = ["conda", "run", "-n", self.env_name, "conda", "--version"]
+        try:
+            subp.check_call(
+                cmd, env=os.environ.copy(),
+                stdout=subp.DEVNULL, stderr=subp.DEVNULL)
+        except subp.CalledProcessError:
+            return False
+        return True
+
     def set_r_lib_path(self):
         """Set the R_LIBS_USER env variable."""
         env_path = self.env_path
@@ -231,7 +244,7 @@ class RConfig(EnvBuild):
             f"install.packages('BiocManager', repos='{self.cran_mirror}'); "
             f"BiocManager::install({pkgs_str})"
         )
-        if self.bioconductor_mirror is not None:  # pargma: no cover
+        if self.bioconductor_mirror is not None:  # pragma: no cover
             install_inst = (
                 f"options(BioC_mirror='{self.bioconductor_mirror}'); " +
                 install_inst

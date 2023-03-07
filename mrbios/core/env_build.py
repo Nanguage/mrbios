@@ -228,7 +228,7 @@ class RConfig(EnvBuild):
             pkgs_str = f"'{dependents[0]}'"
         install_inst = (
             "if (!requireNamespace('BiocManager', quietly = TRUE)) "
-            "install.packages('BiocManager'); "
+            f"install.packages('BiocManager', repos='{self.cran_mirror}'); "
             f"BiocManager::install({pkgs_str})"
         )
         if self.bioconductor_mirror is not None:  # pargma: no cover
@@ -249,7 +249,7 @@ class RConfig(EnvBuild):
             pkgs_str = f"'{dependents[0]}'"
         install_inst = (
             "if (!requireNamespace('devtools', quietly = TRUE)) "
-            "install.packages('devtools'); "
+            f"install.packages('devtools', repos='{self.cran_mirror}'); "
             f"devtools::install_github({pkgs_str})"
         )
         cmd = ["Rscript", "-e", f'{install_inst}']

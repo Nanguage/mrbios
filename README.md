@@ -28,28 +28,32 @@
 
 ## TODO List
 
-+ CURD for
-  * file type (done)
-  * file format (done)
-  * task (done)
-  * script (done)
-+ add meta file(JSON) for DirObjs (done)
++ Project scaffolding
+  * Create project (done)
+  * CURD for: (done)
+    + environment
+    + file type
+    + file format
+    + task
+    + script
+  * verbose mode for list DirObjs.
 + Environment build
   * conda env build
     + create env and install conda dependents (done)
     + Run command under the conda env. (done)
     + support pip install (done)
-    + support install R package with `install.packages`
+    + support install R package with `install.packages` (done)
+    + support install R package with `Bioconductor` (done)
+    + support install R package with `devtools` (done)
     + support build compiled languages
       * C/C++
       * Rust
-  * docker image build
+  * Build docker image for whole project
 + Global state setting
   * set global project path
 + Script run
   * with CLI
   * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI
-+ verbose mode for list DirObjs.
 
 
 ## Credits

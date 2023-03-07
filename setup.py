@@ -22,9 +22,9 @@ def get_version():
 def get_install_requirements():
     requirements = [
         "fire",
-        "loguru",
         "rich",
         "jinja2",
+        "pyYAML"
     ]
     return requirements
 

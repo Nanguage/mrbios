@@ -8,6 +8,7 @@ conda:
   deps:
     - r-base==4.1.2
     - r-essentials
+    - r-devtools
 
 R:
   # dependents for CRAN packages
@@ -15,7 +16,6 @@ R:
     mirror: https://mirrors.tuna.tsinghua.edu.cn/CRAN/
     deps:
       - BiocManager
-      - devtools
   
   # dependents for Bioconductor packages
   bioconductor:

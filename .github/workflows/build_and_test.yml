@@ -17,9 +17,6 @@ jobs:
           sudo apt install -y libharfbuzz-dev libfribidi-dev
           sudo apt install -y libfontconfig1-dev
           sudo apt install -y libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
-      - name: Set Environment Variables
-        run: |
-          export GITHUB_PAT=${{ secrets.PAT }}
       - name: Setup conda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -42,6 +39,8 @@ jobs:
         run: |
           mypy mrbios/
       - name: Test with pytest
+        env:
+          GITHUB_PAT: ${{ secrets.PAT }}
         run: |
           pytest -s --cov=./mrbios/ tests/ --cov-report=xml
       - name: Upload to codecov

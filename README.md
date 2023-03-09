@@ -49,7 +49,7 @@
       * C/C++
       * Rust
   * Build docker image for whole project
-+ Global state setting
++ Global state setting (done)
   * set global project path
 + Script run
   * with CLI

@@ -83,6 +83,7 @@ class Env(DirObj):
         new_info['build-time'] = str(datetime.now())
         self.meta_info = new_info
 
+    @property
     def build_name(self) -> str:
         return self.build_config.env_name
 

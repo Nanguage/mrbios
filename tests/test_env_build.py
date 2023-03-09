@@ -28,7 +28,7 @@ def test_build_env(monkeypatch):
         "sys.stdin", io.StringIO("test1"))
     env_build.build()
     env_test1 = env_build._proj.get_envs()['test1']
-    assert env_test1.build_name == TEST_PROJ.removeprefix("./") + "-test1"
+    assert env_test1.build_name == (TEST_PROJ.removeprefix("./") + "-test1")
     assert env_test1.is_built
     print(repr(env_test1))
     monkeypatch.setattr(

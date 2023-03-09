@@ -137,7 +137,7 @@ class CondaConfig():
             if "*" in line:
                 env_path = line.split()[2]
                 return Path(env_path)
-        else:
+        else:  # pragma: no cover
             raise ValueError("Cannot find conda env path.")
 
     @property

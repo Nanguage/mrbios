@@ -35,7 +35,7 @@ class ScriptRunner:
     def run(self, *args, **kwargs) -> int:
         cmd_obj = cmd2func(self.command_template, self.config)
         cmd_str = cmd_obj.get_cmd_str(*args, **kwargs)
-        self.env.run_command(shlex.split(cmd_str))
+        return self.env.run_command(shlex.split(cmd_str))
 
     def get_local_files(self) -> list[str]:
         """Get the local files in the script folder."""

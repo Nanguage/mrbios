@@ -43,7 +43,7 @@ def path_is_project(path: Path) -> bool:
 
 class Project():
     """Abscraction of the project."""
-    def __init__(self, path: str):
+    def __init__(self, path: str | Path):
         p = Path(path)
         self.path = p
 

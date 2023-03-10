@@ -12,11 +12,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Install system librarys
-        run: |
-          sudo apt install -y libharfbuzz-dev libfribidi-dev
-          sudo apt install -y libfontconfig1-dev
-          sudo apt install -y libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
       - name: Setup conda
         uses: conda-incubator/setup-miniconda@v2
         with:

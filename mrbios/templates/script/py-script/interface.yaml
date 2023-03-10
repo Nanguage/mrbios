@@ -1,5 +1,9 @@
 name: hello
 
+env: py-env  # The environment name
+
+# The command will be run in the environment
+# Please mark the input arguments with '{}'
 command: python run.py --name {name} --times {times} --out {out}
 
 inputs:
@@ -12,6 +16,7 @@ inputs:
     default: 10
 
   out:
-    type: file
+    type: str
+    # Specify the file type and format (Optional, suggested)
     file_format: FILE_TYPE/FILE_FORMAT
     default: xxx

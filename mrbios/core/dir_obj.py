@@ -6,6 +6,7 @@ from datetime import datetime
 from ..utils.log import console
 from ..utils.template import TemplatesRenderer
 from .env_build import CondaEnvBuild
+from .runner import ScriptRunner
 
 
 class DirObj():
@@ -154,3 +155,10 @@ class Script(DirObj):
     def task(self) -> Task:
         parent = self.path.parent
         return Task(parent.name, parent.parent)
+
+    @property
+    def runner(self) -> "ScriptRunner":
+        return ScriptRunner.from_config_file(self.path / "interface.yaml")
+
+    def run(self, *args, **kwargs):
+        self.runner.run(*args, **kwargs)

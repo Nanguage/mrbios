@@ -358,6 +358,29 @@ class EnvBuild(SubCLI):
                 f"run under env [note]{env_name}[/note].")
 
 
+class ScriptRun(SubCLI):
+    def run(self, task_script: str, *args, **kwargs):
+        """Run a script.
+
+        :param task_script: The task and script name, separated by a '/'.
+        """
+        self.print_working_path()
+        task, script = task_script.split("/")
+        scripts = self._proj.get_scripts(task)
+        if script in scripts:
+            console.log(
+                f"Run script [note]{script}[/note] under task "
+                f"[note]{task}[/note].")
+            scripts[script].run(*args, **kwargs)
+            console.log(
+                f"The script [note]{script}[/note] has been "
+                f"successfully run under task [note]{task}[/note].")
+        else:
+            console.log(
+                f"[error]The script [blue]{script}[/blue] "
+                f"not found under task [blue]{task}[/blue].[/error]")
+
+
 class CLI():
     def __init__(
             self,
@@ -369,6 +392,7 @@ class CLI():
         # command groups
         self.project = ProjectManager(self._user_setting)
         self.env = EnvBuild(self._user_setting)
+        self.script = ScriptRun(self._user_setting)
 
 
 if __name__ == "__main__":

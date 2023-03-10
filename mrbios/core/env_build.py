@@ -27,7 +27,7 @@ class CondaEnvBuild(EnvBuild):
     @classmethod
     def from_config_file(cls, path: str | Path) -> "CondaEnvBuild":
         with open(path) as f:
-            config = yaml.load(f, Loader=yaml.FullLoader)
+            config = yaml.safe_load(f)
         project_name = Path(path).parent.parent.parent.name
         build = CondaEnvBuild(project_name, config)
         return build

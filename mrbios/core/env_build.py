@@ -24,13 +24,17 @@ class CondaEnvBuild(EnvBuild):
         self.r_config = RConfig(
             config.get("R", {}))
 
-    @classmethod
-    def from_config_file(cls, path: str | Path) -> "CondaEnvBuild":
+    @staticmethod
+    def from_config_file(path: str | Path) -> "CondaEnvBuild":
         with open(path) as f:
             config = yaml.safe_load(f)
         project_name = Path(path).parent.parent.parent.name
         build = CondaEnvBuild(project_name, config)
         return build
+
+    def write_to_config_file(self, path: str | Path):
+        with open(path, "w") as f:
+            yaml.dump(self.config, f, sort_keys=False)
 
     def build(self):
         self.conda_config.check_install_command()

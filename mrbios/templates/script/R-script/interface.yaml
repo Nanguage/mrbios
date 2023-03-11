@@ -1,0 +1,22 @@
+name: hello
+
+env: R-env  # The environment name
+
+# The command will be run in the environment
+# Please mark the input arguments with '{}'
+command: Rscript run.R --name {name} --times {times} --out {out}
+
+inputs:
+  name:
+    type: str
+
+  times:
+    type: int
+    range: [1, 100]
+    default: 10
+
+  out:
+    type: str
+    # Specify the file type and format (Optional, suggested)
+    file_format: FILE_TYPE/FILE_FORMAT
+    default: xxx

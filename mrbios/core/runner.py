@@ -12,8 +12,7 @@ if T.TYPE_CHECKING:
 
 class ScriptRunner:
     def __init__(self, config: dict, base_path: str | Path):
-        if isinstance(base_path, str):
-            base_path = Path(base_path)
+        base_path = Path(base_path)
         self.path = base_path
         self.config = config
         env_name = config["env"]
@@ -53,8 +52,7 @@ class ScriptRunner:
 
     @staticmethod
     def from_config_file(path: str | Path) -> "ScriptRunner":
-        if isinstance(path, str):
-            path = Path(path)
+        path = Path(path)
         with open(path, 'r') as f:
             config = yaml.safe_load(f)
         return ScriptRunner(config, path.parent)

@@ -52,7 +52,7 @@
 + Global state setting (done)
   * set global project path
 + Script run
-  * with CLI
+  * with CLI (done)
   * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI
 
 

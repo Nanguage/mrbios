@@ -16,6 +16,7 @@ R:
     mirror: https://mirrors.tuna.tsinghua.edu.cn/CRAN/
     deps:
       - BiocManager
+      - optparse
   
   # dependents for Bioconductor packages
   bioconductor:

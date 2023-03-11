@@ -1,0 +1,6 @@
+# {{name}}
+
+{{description}}
+
++ Script file: [run.R](./run.R)
++ Interface defination: [interface.yaml](./interface.yaml)

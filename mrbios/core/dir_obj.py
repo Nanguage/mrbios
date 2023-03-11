@@ -46,6 +46,9 @@ class DirObj():
             params = {"name": self.name}
             params.update(kwargs)
             renderer.render(**params)
+            kwargs.update({
+                "create-time": str(datetime.now()),
+            })
             self.meta_info = kwargs
             console.log(f"{repr(self)}")
         else:

@@ -7,6 +7,7 @@ from ..utils.log import console
 from ..utils.template import TemplatesRenderer
 from .env_build import CondaEnvBuild
 from .runner import ScriptRunner
+from ..utils.misc import file_has_changed_after
 
 
 class DirObj():
@@ -82,10 +83,29 @@ class Env(DirObj):
         return CondaEnvBuild.from_config_file(self.path / "build.yaml")
 
     def build(self):
+        """Build the conda env."""
         self.build_config.build()
         new_info = self.meta_info.copy()
         new_info['build-time'] = str(datetime.now())
         self.meta_info = new_info
+
+    def update(self):
+        """Update the built conda env."""
+        if not self.is_built:
+            console.log("Env is not built, build it first.")
+            self.build()
+        else:
+            # rebuild the env if build.yaml has changed
+            build_time = datetime.fromisoformat(
+                self.meta_info['build-time'])
+            if file_has_changed_after(self.path / 'build.yaml', build_time):
+                self.delete_built()
+                self.build()
+            else:
+                console.log(
+                    f"[note]{self.path.joinpath('build.yaml')}[/note] "
+                    "has not changed, skip rebuild."
+                )
 
     @property
     def build_name(self) -> str:

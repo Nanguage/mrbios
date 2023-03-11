@@ -281,6 +281,29 @@ class EnvBuild(SubCLI):
                 console.log(
                     f"The env [note]{name}[/note] has aleardy been built.")
 
+    def update(self, env_name: str | None = None):
+        """Update a built env."""
+        self.print_working_path()
+        name_and_env = self._select_env(env_name)
+        if name_and_env is not None:
+            env_name, env = name_and_env
+            console.log(f"Start updating [note]{env_name}[/note]")
+            env.update()
+            console.log(
+                f"The env [note]{env_name}[/note] has aleardy been updated.")
+
+    def update_all(self):
+        """Update all built envs."""
+        self.print_working_path()
+        envs = self._proj.get_envs()
+        for name, env in envs.items():
+            if env.is_built:
+                console.log(
+                    f"Start updating [note]{name}[/note]")
+                env.update()
+                console.log(
+                    f"The env [note]{name}[/note] has aleardy been updated.")
+
     def delete(self, env_name: str | None = None):
         """Delete a built env."""
         self.print_working_path()
@@ -350,7 +373,7 @@ class EnvBuild(SubCLI):
                 return
             cmd = shlex.split(command)
             console.log(
-                f"Run command '{command}' under "
+                f"Run command [path]{command}[/path] under "
                 f"env [note]{env_name}[/note].")
             env.run_command(cmd)
             console.log(

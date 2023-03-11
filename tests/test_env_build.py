@@ -87,3 +87,23 @@ def test_RConfig():
     conf.get_cran_command()
     conf.get_bioconductor_command()
     conf.get_devtools_command()
+
+
+def test_update_env():
+    project = ProjectManager()
+    project.create(TEST_PROJ)
+    project.add_env("test1", "py-env")
+    project.add_env("test2", "py-env")
+    env_build = EnvBuild()
+    env_build.build_all()
+    test1_env = project._proj.get_envs()['test1']
+    test1_config = test1_env.build_config
+    test1_config.config['pip']['deps'] = ['h5py']
+    test1_config.write_to_config_file(
+        f"{test1_env.path}/build.yaml"
+    )
+    env_build.update_all()
+    env_build.run("python -c 'import h5py'", "test1")
+    env_build.update("test2")
+    env_build.clear_all()
+    shutil.rmtree(TEST_PROJ)

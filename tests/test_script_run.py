@@ -48,7 +48,7 @@ def test_py_script_run():
 def test_R_script_run():
     project = setup_project()
     # R-env and R-script
-    project._proj.add_env("R-env", "R-env")
+    project._proj.add_env("R-env", "r-env")
 
     # simplify the env build config
     env_build = CondaEnvBuild.from_config_file(
@@ -62,7 +62,7 @@ def test_R_script_run():
     }
     env_build.write_to_config_file(
         f"{TEST_PROJ}/Environments/R-env/build.yaml")
-    project._proj.add_script("TestTask", "TestScript-R", "R-script", "Test")
+    project._proj.add_script("TestTask", "TestScript-R", "r-script", "Test")
 
     env_build = build_envs()
     # Run R-script

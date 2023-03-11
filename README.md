@@ -26,35 +26,41 @@
 **Work In Progress**
 
 
-## TODO List
+## Features
 
 + Project scaffolding
-  * Create project (done)
-  * CURD for: (done)
+  * Create project
+  * CURD for:
     + environment
     + file type
     + file format
     + task
     + script
-  * verbose mode for list DirObjs.
 + Environment build
-  * conda env build
-    + create env and install conda dependents (done)
-    + Run command under the conda env. (done)
-    + support pip install (done)
-    + support install R package with `install.packages` (done)
-    + support install R package with `Bioconductor` (done)
-    + support install R package with `devtools` (done)
-    + support build compiled languages
-      * C/C++
-      * Rust
-  * Build docker image for whole project
-+ Global state setting (done)
+  * Conda env build
+    + Support fast env build using [`mamba`](https://github.com/mamba-org/mamba)
+    + Create env and install conda dependents.
+    + Run command under the conda env.
+    + Support pip install.
+    + Support install R package with `install.packages`.
+    + Support install R package with `Bioconductor`.
+    + Support install R package with `devtools`.
++ Global state setting
   * set global project path
 + Script run
-  * with CLI (done)
-  * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI
+  * with CLI
 
+
+## TODO List
+
++ Allow update envs.
++ Script run with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI.
++ Integrate with [executor-http](https://github.com/Nanguage/executor-http).
++ Build docker image for whole project.
++ Support build compiled languages.
+  * C/C++
+  * Rust
++ Verbose mode for list DirObjs.
 
 ## Credits
 

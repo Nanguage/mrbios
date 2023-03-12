@@ -1,9 +1,10 @@
+import sys
 import shlex
 import os.path
 from pathlib import Path
 
 from .core.project import Project
-from .core.dir_obj import Env
+from .core.dir_obj import Env, Script
 from .utils.template import list_env_templates, list_script_templates
 from .utils.log import console, Confirm, Prompt
 from .utils.user_setting import UserSetting, DEFAULT_SETTING_PATH
@@ -370,7 +371,7 @@ class EnvBuild(SubCLI):
                 console.log(
                     f"[error]The env [blue]{env_name}[/blue] not "
                     "yet built. Please build it first.[/error]")
-                return
+                sys.exit(1)
             cmd = shlex.split(command)
             console.log(
                 f"Run command [path]{command}[/path] under "
@@ -382,26 +383,67 @@ class EnvBuild(SubCLI):
 
 
 class ScriptRun(SubCLI):
-    def run(self, task_script: str, *args, **kwargs):
-        """Run a script.
 
-        :param task_script: The task and script name, separated by a '/'.
-        """
-        self.print_working_path()
+    def _get_script(self, task_script: str) -> tuple[str, Script]:
         task, script = task_script.split("/")
         scripts = self._proj.get_scripts(task)
         if script in scripts:
-            console.log(
-                f"Run script [note]{script}[/note] under task "
-                f"[note]{task}[/note].")
-            scripts[script].run(*args, **kwargs)
-            console.log(
-                f"The script [note]{script}[/note] has been "
-                f"successfully run under task [note]{task}[/note].")
+            return task, scripts[script]
         else:
             console.log(
                 f"[error]The script [blue]{script}[/blue] "
                 f"not found under task [blue]{task}[/blue].[/error]")
+            sys.exit(1)
+
+    def run(self, task_script: str, *args, **kwargs):
+        """Run a script.
+
+        :param task_script: The task and script name, separated by a '/',
+        like "task1/script1".
+        """
+        self.print_working_path()
+        task_name, script = self._get_script(task_script)
+        console.log(
+            f"Run script [note]{script.name}[/note] under task "
+            f"[note]{task_name}[/note].")
+        script.runner.run(*args, **kwargs)
+        console.log(
+            f"The script [note]{script.name}[/note] has been "
+            f"successfully run under task [note]{task_name}[/note].")
+
+    def qt_gui(self, task_script: str):  # pragma: no cover
+        """Run a script with Qt GUI.
+
+        :param task_script: The task and script name, separated by a '/',
+        like "task1/script1".
+        """
+        self.print_working_path()
+        task_name, script = self._get_script(task_script)
+        console.log(
+            f"Run script [note]{script.name}[/note] under task "
+            f"[note]{task_name}[/note] with Qt GUI.")
+        script.runner.run_with_qt_gui()
+        console.log(
+            f"The script [note]{script.name}[/note] has been "
+            f"successfully run under task [note]{task_name}[/note] "
+            "with Qt GUI.")
+
+    def dash_app(self, task_script: str):  # pragma: no cover
+        """Run a script with Dash App.
+
+        :param task_script: The task and script name, separated by a '/',
+        like "task1/script1".
+        """
+        self.print_working_path()
+        task_name, script = self._get_script(task_script)
+        console.log(
+            f"Run script [note]{script.name}[/note] under task "
+            f"[note]{task_name}[/note] with Dash App.")
+        script.runner.run_with_dash_app()
+        console.log(
+            f"The script [note]{script.name}[/note] has been "
+            f"successfully run under task [note]{task_name}[/note] "
+            "with Dash App.")
 
 
 class CLI():

@@ -182,6 +182,3 @@ class Script(DirObj):
     @property
     def runner(self) -> "ScriptRunner":
         return ScriptRunner.from_config_file(self.path / "interface.yaml")
-
-    def run(self, *args, **kwargs):
-        self.runner.run(*args, **kwargs)

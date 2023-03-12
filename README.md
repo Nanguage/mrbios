@@ -38,23 +38,23 @@
     + script
 + Environment build
   * Conda env build
-    + Support fast env build using [`mamba`](https://github.com/mamba-org/mamba)
     + Create env and install conda dependents.
-    + Run command under the conda env.
+    + Support fast env build using [`mamba`](https://github.com/mamba-org/mamba)
     + Support pip install.
     + Support install R package with `install.packages`.
     + Support install R package with `Bioconductor`.
     + Support install R package with `devtools`.
+  * Conda env update, delete.
+  * Run command under the conda env.
 + Global state setting
   * set global project path
 + Script run
   * with CLI
+  * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI.
 
 
 ## TODO List
 
-+ Allow update envs.
-+ Script run with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI.
 + Integrate with [executor-http](https://github.com/Nanguage/executor-http).
 + Build docker image for whole project.
 + Support build compiled languages.

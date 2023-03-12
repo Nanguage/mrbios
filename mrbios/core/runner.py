@@ -4,6 +4,9 @@ import shlex
 
 import yaml
 from cmd2func import cmd2func
+import oneface
+from funcdesc import mark_input
+from funcdesc.desc import NotDef
 
 
 if T.TYPE_CHECKING:
@@ -35,6 +38,37 @@ class ScriptRunner:
         cmd_obj = cmd2func(self.command_template, self.config)
         cmd_str = cmd_obj.get_cmd_str(*args, **kwargs)
         return self.env.run_command(shlex.split(cmd_str))
+
+    def _get_run_func(self) -> T.Callable:  # pragma: no cover
+        cmd_obj = cmd2func(self.command_template, self.config)
+
+        def run(*args, **kwargs) -> int:
+            cmd_str = cmd_obj.get_cmd_str(*args, **kwargs)
+            return self.env.run_command(shlex.split(cmd_str))
+        run.__signature__ = cmd_obj.__signature__
+        for name, arg in self.config['inputs'].items():
+            mark_ = mark_input(
+                name,
+                type=eval(arg.get('type', 'str')),
+                range=arg.get('range'),
+                default=arg.get('default', NotDef),
+            )
+            run = mark_(run)
+        return run
+
+    def run_with_qt_gui(self) -> int:  # pragma: no cover
+        """Launch a Qt GUI to run the script."""
+        run = self._get_run_func()
+        of = oneface.one(run)
+        ret_code = of.qt_gui(**self.config.get("qt_gui", {}))
+        return ret_code
+
+    def run_with_dash_app(self) -> int:  # pragma: no cover
+        """Launch a Dash app to run the script."""
+        run = self._get_run_func()
+        of = oneface.one(run)
+        ret_code = of.dash_app(**self.config.get("dash_app", {}))
+        return ret_code
 
     def get_local_files(self) -> list[str]:
         """Get the local files in the script folder."""

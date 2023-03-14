@@ -8,6 +8,8 @@ import oneface
 from funcdesc import mark_input
 from funcdesc.desc import NotDef
 
+from ..utils.log import console
+
 
 if T.TYPE_CHECKING:
     from .project import Project
@@ -45,7 +47,7 @@ class ScriptRunner:
         def run(*args, **kwargs) -> int:
             cmd_str = cmd_obj.get_cmd_str(*args, **kwargs)
             return self.env.run_command(shlex.split(cmd_str))
-        run.__signature__ = cmd_obj.__signature__
+        run.__signature__ = cmd_obj.__signature__  # type: ignore
         for name, arg in self.config['inputs'].items():
             mark_ = mark_input(
                 name,
@@ -67,7 +69,10 @@ class ScriptRunner:
         """Launch a Dash app to run the script."""
         run = self._get_run_func()
         of = oneface.one(run)
+        # Avoid the wrong log format caused by the rich logger.
+        console.use_log_as_print = True
         ret_code = of.dash_app(**self.config.get("dash_app", {}))
+        console.use_log_as_print = False
         return ret_code
 
     def get_local_files(self) -> list[str]:

@@ -21,8 +21,8 @@ def get_version():
 
 def get_install_requirements():
     requirements = [
-        "cmd2func>=0.1.3",
-        "oneface>=0.2.1",
+        "cmd2func>=0.1.4",
+        "oneface>=0.2.2",
         "fire",
         "rich",
         "jinja2",

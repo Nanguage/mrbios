@@ -28,6 +28,9 @@ class CustomConsole():
     def print(self, msg: str = "", **kwargs):
         self.console.print(msg, **kwargs)
 
+    def status(self, *args, **kwargs):
+        return self.console.status(*args, **kwargs)
+
 
 console = CustomConsole()
 

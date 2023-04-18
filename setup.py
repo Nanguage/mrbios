@@ -19,25 +19,24 @@ def get_version():
         raise IOError("Version information can not found.")
 
 
-def get_install_requirements():
-    requirements = [
-        "cmd2func>=0.1.4",
-        "oneface>=0.2.2",
-        "fire",
-        "rich",
-        "jinja2",
-        "pyYAML"
-    ]
+def get_requirements_from_file(filename):
+    requirements = []
+    with open(filename) as f:
+        for line in f.readlines():
+            line = line.strip()
+            if len(line) == 0:
+                continue
+            if line and not line.startswith('#'):
+                requirements.append(line)
     return requirements
 
 
+def get_install_requirements():
+    return get_install_requirements("requirements.txt")
+
+
 requires_test = ['pytest', 'pytest-cov', 'flake8', 'mypy']
-requires_doc = []
-with open("docs/requirements.txt") as f:
-    for line in f:
-        p = line.strip()
-        if p:
-            requires_doc.append(p)
+requires_doc = get_install_requirements("docs/requirements.txt")
 requires_dev_tools = ["pip", "setuptools", "wheel", "twine", "ipdb"]
 requires_type = ["types-PyYAML"]
 

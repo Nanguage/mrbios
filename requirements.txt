@@ -1,0 +1,6 @@
+cmd2func>=0.1.4
+oneface>=0.2.2
+fire  
+rich
+jinja2
+pyYAML

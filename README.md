@@ -61,6 +61,8 @@
   * C/C++
   * Rust
 + Verbose mode for list DirObjs.
++ Documentation.
++ Pipeline module design.
 
 ## Credits
 

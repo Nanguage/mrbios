@@ -27,7 +27,7 @@ def test_create():
 
 def test_list_env_templates():
     pr = ProjectManager()
-    pr.set_working(TEST_PROJ)
+    pr.set_current_project(TEST_PROJ)
     pr.list_env_templates()
 
 

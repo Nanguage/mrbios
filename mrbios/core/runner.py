@@ -41,10 +41,10 @@ class ScriptRunner:
         cmd_str = cmd_obj.get_cmd_str(*args, **kwargs)
         return self.env.run_command(shlex.split(cmd_str))
 
-    def _get_run_func(self) -> T.Callable:  # pragma: no cover
+    def get_run_func(self) -> T.Callable:
         cmd_obj = cmd2func(self.command_template, self.config)
 
-        def run(*args, **kwargs) -> int:
+        def run(*args, **kwargs) -> int:  # pragma: no cover
             cmd_str = cmd_obj.get_cmd_str(*args, **kwargs)
             return self.env.run_command(shlex.split(cmd_str))
         run.__signature__ = cmd_obj.__signature__  # type: ignore
@@ -60,14 +60,14 @@ class ScriptRunner:
 
     def run_with_qt_gui(self) -> int:  # pragma: no cover
         """Launch a Qt GUI to run the script."""
-        run = self._get_run_func()
+        run = self.get_run_func()
         of = oneface.one(run)
         ret_code = of.qt_gui(**self.config.get("qt_gui", {}))
         return ret_code
 
     def run_with_dash_app(self) -> int:  # pragma: no cover
         """Launch a Dash app to run the script."""
-        run = self._get_run_func()
+        run = self.get_run_func()
         of = oneface.one(run)
         # Avoid the wrong log format caused by the rich logger.
         console.use_log_as_print = True

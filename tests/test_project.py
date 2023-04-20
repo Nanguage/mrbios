@@ -3,37 +3,35 @@ import io
 
 import pytest
 
-from mrbios.cli import ProjectManager
+from mrbios.cli import CLI
 
 
-TEST_PROJ = "./TestProj"
 
-
-def test_create():
-    pr = ProjectManager()
+def test_create(cli: "CLI", test_proj_path: str):
+    pr = cli.project
     with pytest.raises(IOError):
         pr._proj.check_exist()
-    pr.create(TEST_PROJ)
+    pr.create(test_proj_path)
     assert 'mrbios-version' in pr._proj.meta_info
-    assert pr._proj.name == TEST_PROJ.removeprefix("./")
+    assert pr._proj.name == test_proj_path.removeprefix("./")
     assert pr._proj.path.exists()
     assert pr._proj.sub_paths.env.exists()
     assert pr._proj.sub_paths.format.exists()
     assert pr._proj.sub_paths.pipe.exists()
     assert pr._proj.sub_paths.task.exists()
     assert (pr._proj.path / "README.md").exists()
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
-def test_list_env_templates():
-    pr = ProjectManager()
-    pr.set_current_project(TEST_PROJ)
+def test_list_env_templates(cli: "CLI", test_proj_path: str):
+    cli.set_current_project(test_proj_path)
+    pr = cli.project
     pr.list_env_templates()
 
 
-def test_add_env(monkeypatch):
-    pr = ProjectManager()
-    pr.create(TEST_PROJ)
+def test_add_env(monkeypatch, cli: "CLI", test_proj_path: str):
+    pr = cli.project
+    pr.create(test_proj_path)
     with pytest.raises(IOError):
         pr.add_env("test_py", "not_exist")
 
@@ -53,12 +51,12 @@ def test_add_env(monkeypatch):
     with pytest.raises(IOError):
         monkeypatch.setattr('sys.stdin', io.StringIO('y'))
         pr.remove_env("not_exist")
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
-def test_add_file_type(monkeypatch):
-    pr = ProjectManager()
-    pr.create(TEST_PROJ)
+def test_add_file_type(monkeypatch, cli: "CLI", test_proj_path: str):
+    pr = cli.project
+    pr.create(test_proj_path)
     desc = 'The expression matrix.'
     monkeypatch.setattr('sys.stdin', io.StringIO(desc))
     pr.add_file_type("ExpMat")
@@ -78,12 +76,12 @@ def test_add_file_type(monkeypatch):
     with pytest.raises(IOError):
         monkeypatch.setattr('sys.stdin', io.StringIO('y'))
         pr.remove_file_type("not_exist")
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
-def test_add_file_format(monkeypatch):
-    pr = ProjectManager()
-    pr.create(TEST_PROJ)
+def test_add_file_format(monkeypatch, cli: "CLI", test_proj_path: str):
+    pr = cli.project
+    pr.create(test_proj_path)
     pr.add_file_type("ExpMat", "The exp table.")
     monkeypatch.setattr(
         "sys.stdin", io.StringIO("ExpMat\nThe txt format mat."))
@@ -108,12 +106,12 @@ def test_add_file_format(monkeypatch):
     monkeypatch.setattr('sys.stdin', io.StringIO('y'))
     pr.remove_file_format("ExpMat", "TxtMat")
     assert len(ft.file_formats) == 0
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
-def test_add_task(monkeypatch):
-    pr = ProjectManager()
-    pr.create(TEST_PROJ)
+def test_add_task(monkeypatch, cli: "CLI", test_proj_path: str):
+    pr = cli.project
+    pr.create(test_proj_path)
     monkeypatch.setattr(
         "sys.stdin", io.StringIO("Test"))
     pr.add_task("TestTask")
@@ -126,12 +124,12 @@ def test_add_task(monkeypatch):
         "sys.stdin", io.StringIO("y"))
     pr.remove_task("TestTask")
     assert len(pr._proj.get_tasks()) == 0
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
-def test_add_script(monkeypatch):
-    pr = ProjectManager()
-    pr.create(TEST_PROJ)
+def test_add_script(monkeypatch, cli: "CLI", test_proj_path: str):
+    pr = cli.project
+    pr.create(test_proj_path)
     pr.add_task("TestTask", "Test")
     monkeypatch.setattr(
         "sys.stdin", io.StringIO("TestTask\npy-script\nTest"))
@@ -159,4 +157,4 @@ def test_add_script(monkeypatch):
     pr.remove_script("TestTask", "TestScript")
     scripts = pr._proj.get_scripts("TestTask")
     assert len(scripts) == 0
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)

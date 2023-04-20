@@ -32,11 +32,11 @@ def get_requirements_from_file(filename):
 
 
 def get_install_requirements():
-    return get_install_requirements("requirements.txt")
+    return get_requirements_from_file("requirements.txt")
 
 
 requires_test = ['pytest', 'pytest-cov', 'flake8', 'mypy']
-requires_doc = get_install_requirements("docs/requirements.txt")
+requires_doc = get_requirements_from_file("docs/requirements.txt")
 requires_dev_tools = ["pip", "setuptools", "wheel", "twine", "ipdb"]
 requires_type = ["types-PyYAML"]
 

@@ -6,16 +6,13 @@ from mrbios.utils.user_setting import DEFAULT_SETTING_PATH, UserSetting
 from mrbios.core.project import path_is_project
 
 
-TEST_PROJ = "./TestProj3"
 
-
-def test_cli():
-    cli = CLI()
+def test_cli(cli: "CLI", test_proj_path: str):
     assert DEFAULT_SETTING_PATH.exists()
-    cli.project.create(TEST_PROJ)
-    assert path_is_project(Path(TEST_PROJ))
+    cli.project.create(test_proj_path)
+    assert path_is_project(Path(test_proj_path))
     assert not path_is_project(Path.cwd())
-    proj_path = Path(TEST_PROJ).absolute()
+    proj_path = Path(test_proj_path).absolute()
     assert cli._user_setting.attrs["project_path"] == str(proj_path)
     shutil.rmtree(proj_path)
 

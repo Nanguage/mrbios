@@ -48,7 +48,6 @@ def test_build_env(monkeypatch, test_proj_path, cli: "CLI"):
     assert not env_test1.is_built
     assert not env_build._proj.get_envs()['test2'].is_built
     print(repr(env_test1))
-    env_build.run("pip install h5py", "test1")
     env_build.list()
     shutil.rmtree(test_proj_path)
 

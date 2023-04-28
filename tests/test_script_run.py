@@ -6,8 +6,6 @@ from mrbios.cli import CLI, EnvBuild
 from mrbios.core.env_build import CondaEnvBuild
 
 
-TEST_PROJ = "./TestProj3"
-
 
 def setup_project(cli: "CLI", test_proj_path: str):
     project = cli.project
@@ -22,10 +20,10 @@ def build_envs(cli):
     return env_build
 
 
-def clear_stuff(env_build: EnvBuild, test_out):
+def clear_stuff(env_build: EnvBuild, test_out, test_proj_path):
     os.remove(test_out)
     env_build.clear_all()
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
 def test_py_script_run(cli: "CLI", test_proj_path: str):
@@ -42,7 +40,7 @@ def test_py_script_run(cli: "CLI", test_proj_path: str):
         name="world", times=10, out=test_out,
     )
     assert test_out.exists()
-    clear_stuff(env_build, test_out)
+    clear_stuff(env_build, test_out, test_proj_path)
 
 
 def test_R_script_run(cli: "CLI", test_proj_path: str):
@@ -52,7 +50,7 @@ def test_R_script_run(cli: "CLI", test_proj_path: str):
 
     # simplify the env build config
     env_build = CondaEnvBuild.from_config_file(
-        f"{TEST_PROJ}/Environments/R-env/build.yaml")
+        f"{test_proj_path}/Environments/R-env/build.yaml")
     env_build.config["conda"]["deps"] = ["r-base==4.1.2"]
     env_build.config["R"] = {
         "cran": {
@@ -61,7 +59,7 @@ def test_R_script_run(cli: "CLI", test_proj_path: str):
         }
     }
     env_build.write_to_config_file(
-        f"{TEST_PROJ}/Environments/R-env/build.yaml")
+        f"{test_proj_path}/Environments/R-env/build.yaml")
     project._proj.add_script("TestTask", "TestScript-R", "r-script", "Test")
 
     env_build = build_envs(cli)
@@ -73,4 +71,4 @@ def test_R_script_run(cli: "CLI", test_proj_path: str):
         name="world", times=10, out=test_out,
     )
     assert test_out.exists()
-    clear_stuff(env_build, test_out)
+    clear_stuff(env_build, test_out, test_proj_path)

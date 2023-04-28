@@ -17,8 +17,8 @@ def clear_stuff(test_proj_path: str):
     shutil.rmtree(test_proj_path)
 
 
-def test_platform(test_proj_path):
-    setup_project()
+def test_platform(cli: "CLI", test_proj_path: str):
+    setup_project(cli, test_proj_path)
     platform = Platform(test_proj_path)
     assert len(platform.app.task_table.table) == 1
-    clear_stuff()
+    clear_stuff(test_proj_path)

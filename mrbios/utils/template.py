@@ -42,7 +42,11 @@ class TemplatesRenderer():
                 f"[path]{self.templates_path}[/path] to "
                 f"[path]{self.target_path}[/path]"):
             for path in self.templates_path.glob("*"):
-                if path.name.endswith(".temp"):
+                if path.name in ["__pycache__", ".DS_Store"]:
+                    continue
+                elif path.is_dir():
+                    continue
+                elif path.name.endswith(".temp"):
                     # render file
                     target = self.target_path / path.name.removesuffix(".temp")
                     console.log(

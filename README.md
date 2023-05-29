@@ -51,11 +51,12 @@
 + Script run
   * with CLI
   * with [oneFace](https://github.com/Nanguage/oneFace) GUI/WebUI.
++ Integrate with [executor-http](https://github.com/Nanguage/executor-http).
 
 
 ## TODO List
 
-+ Integrate with [executor-http](https://github.com/Nanguage/executor-http).
++ UI for project management.
 + Build docker image for whole project.
 + Support build compiled languages.
   * C/C++

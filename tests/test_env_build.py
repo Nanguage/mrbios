@@ -4,12 +4,9 @@ from subprocess import CalledProcessError
 
 import pytest
 
-from mrbios.cli import EnvBuild, ProjectManager
+from mrbios.cli import CLI
 from mrbios.utils.misc import command_exist
 from mrbios.core.env_build import RConfig
-
-
-TEST_PROJ = "./TestProj2"
 
 
 def test_command_exist():
@@ -17,10 +14,10 @@ def test_command_exist():
     assert not command_exist("not_exist_command")
 
 
-def test_build_env(monkeypatch):
-    project = ProjectManager()
-    project.create(TEST_PROJ)
-    env_build = EnvBuild()
+def test_build_env(monkeypatch, test_proj_path, cli: "CLI"):
+    project = cli.project
+    project.create(test_proj_path)
+    env_build = cli.env
     env_build.build()
     env_build._proj.add_env("test1", "py-env")
     env_build._proj.add_env("test2", "py-env")
@@ -28,7 +25,8 @@ def test_build_env(monkeypatch):
         "sys.stdin", io.StringIO("test1"))
     env_build.build()
     env_test1 = env_build._proj.get_envs()['test1']
-    assert env_test1.build_name == (TEST_PROJ.removeprefix("./") + "-test1")
+    assert env_test1.build_name == (
+        test_proj_path.removeprefix("./") + "-test1")
     assert env_test1.is_built
     print(repr(env_test1))
     monkeypatch.setattr(
@@ -50,15 +48,14 @@ def test_build_env(monkeypatch):
     assert not env_test1.is_built
     assert not env_build._proj.get_envs()['test2'].is_built
     print(repr(env_test1))
-    env_build.run("pip install h5py", "test1")
     env_build.list()
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
-def test_build_R_env(monkeypatch):
-    project = ProjectManager()
-    project.create(TEST_PROJ)
-    env_build = EnvBuild()
+def test_build_R_env(monkeypatch, cli: "CLI", test_proj_path):
+    project = cli.project
+    project.create(test_proj_path)
+    env_build = cli.env
     env_build._proj.add_env("test3", "r-env")
     monkeypatch.setattr(
         "sys.stdin", io.StringIO("test3"))
@@ -69,7 +66,7 @@ def test_build_R_env(monkeypatch):
     env_build.run("Rscript -e library(GenomicRanges)", "test3")
     monkeypatch.setattr("sys.stdin", io.StringIO("y"))
     env_build.delete("test3")
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)
 
 
 def test_RConfig():
@@ -89,12 +86,13 @@ def test_RConfig():
     conf.get_devtools_command()
 
 
-def test_update_env():
-    project = ProjectManager()
-    project.create(TEST_PROJ)
+def test_update_env(test_proj_path: str):
+    cli = CLI()
+    project = cli.project
+    project.create(test_proj_path)
     project.add_env("test1", "py-env")
     project.add_env("test2", "py-env")
-    env_build = EnvBuild()
+    env_build = cli.env
     env_build.build_all()
     test1_env = project._proj.get_envs()['test1']
     test1_config = test1_env.build_config
@@ -106,4 +104,4 @@ def test_update_env():
     env_build.run("python -c 'import h5py'", "test1")
     env_build.update("test2")
     env_build.clear_all()
-    shutil.rmtree(TEST_PROJ)
+    shutil.rmtree(test_proj_path)

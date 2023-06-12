@@ -57,6 +57,7 @@
 ## TODO List
 
 + UI for project management.
++ Support notebook.
 + Build docker image for whole project.
 + Support build compiled languages.
   * C/C++
